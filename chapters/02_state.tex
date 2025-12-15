@@ -1,1 +1,519 @@
-% Empty file for now
+This chapter presents the theoretical foundations required for understanding the numerical simulation of turbulent flows in internal combustion engines. Starting from the fundamental conservation laws, we derive the governing equations and introduce the concepts of turbulence modeling that form the basis of this work.
+
+\section{Conservation Laws}
+
+The behavior of fluid flows is governed by the fundamental conservation principles of mass, momentum, and energy. These laws, when expressed in differential form, yield the equations that describe the motion of fluids.
+
+\subsection{Conservation of Mass}
+
+The principle of mass conservation states that mass can neither be created nor destroyed. For a control volume, this yields the continuity equation:
+\begin{equation}
+    \frac{\partial \rho}{\partial t} + \nabla \cdot (\rho \mathbf{u}) = 0
+    \label{eq:continuity}
+\end{equation}
+where $\rho$ is the fluid density and $\mathbf{u}$ is the velocity vector. For incompressible flows, where density variations are negligible, this simplifies to:
+\begin{equation}
+    \nabla \cdot \mathbf{u} = 0
+    \label{eq:continuity_incomp}
+\end{equation}
+
+\subsection{Conservation of Momentum}
+
+Newton's second law applied to a fluid element yields the momentum equation. The rate of change of momentum equals the sum of all forces acting on the fluid:
+\begin{equation}
+    \frac{\partial (\rho \mathbf{u})}{\partial t} + \nabla \cdot (\rho \mathbf{u} \otimes \mathbf{u}) = -\nabla p + \nabla \cdot \boldsymbol{\tau} + \rho \mathbf{g}
+    \label{eq:momentum}
+\end{equation}
+where $p$ is the pressure, $\boldsymbol{\tau}$ is the viscous stress tensor, and $\mathbf{g}$ represents body forces such as gravity.
+
+For a Newtonian fluid, the viscous stress tensor is related to the strain rate tensor by:
+\begin{equation}
+    \boldsymbol{\tau} = \mu \left( \nabla \mathbf{u} + (\nabla \mathbf{u})^T - \frac{2}{3}(\nabla \cdot \mathbf{u})\mathbf{I} \right)
+    \label{eq:stress_tensor}
+\end{equation}
+where $\mu$ is the dynamic viscosity and $\mathbf{I}$ is the identity tensor.
+
+\subsection{Conservation of Energy}
+
+The first law of thermodynamics, applied to a fluid element, gives the energy equation:
+\begin{equation}
+    \frac{\partial (\rho E)}{\partial t} + \nabla \cdot ((\rho E + p)\mathbf{u}) = \nabla \cdot (\kappa \nabla T) + \nabla \cdot (\boldsymbol{\tau} \cdot \mathbf{u}) + \rho \mathbf{g} \cdot \mathbf{u}
+    \label{eq:energy}
+\end{equation}
+where $E$ is the total energy per unit mass, $\kappa$ is the thermal conductivity, and $T$ is the temperature.
+
+\section{The Navier-Stokes Equations}
+
+Combining the conservation laws with the constitutive relations for a Newtonian fluid yields the Navier-Stokes equations. For an incompressible fluid with constant viscosity, these take the form:
+\begin{align}
+    \nabla \cdot \mathbf{u} &= 0 \label{eq:ns_cont}\\
+    \frac{\partial \mathbf{u}}{\partial t} + (\mathbf{u} \cdot \nabla)\mathbf{u} &= -\frac{1}{\rho}\nabla p + \nu \nabla^2 \mathbf{u} + \mathbf{f}
+    \label{eq:ns_mom}
+\end{align}
+where $\nu = \mu/\rho$ is the kinematic viscosity and $\mathbf{f}$ represents external body forces per unit mass.
+
+The nonlinear convective term $(\mathbf{u} \cdot \nabla)\mathbf{u}$ is responsible for the complex behavior observed in fluid flows, including the phenomenon of turbulence.
+
+\subsection{Reynolds Number}
+
+The Reynolds number is a dimensionless quantity that characterizes the ratio of inertial forces to viscous forces:
+\begin{equation}
+    Re = \frac{UL}{\nu}
+    \label{eq:reynolds}
+\end{equation}
+where $U$ is a characteristic velocity and $L$ is a characteristic length scale. At low Reynolds numbers, viscous forces dominate and the flow remains laminar. As the Reynolds number increases beyond a critical value, the flow transitions to turbulence.
+
+\section{Turbulence}
+
+Turbulence is characterized by chaotic, three-dimensional, unsteady fluid motion with a wide range of length and time scales. Understanding turbulence is essential for accurate prediction of flow behavior in engineering applications.
+
+\subsection{Characteristics of Turbulent Flows}
+
+Turbulent flows exhibit several distinctive features:
+\begin{itemize}
+    \item \textbf{Irregularity}: The flow variables fluctuate randomly in space and time
+    \item \textbf{Three-dimensionality}: Even flows with two-dimensional mean properties have three-dimensional turbulent fluctuations
+    \item \textbf{Diffusivity}: Enhanced mixing and transport of momentum, heat, and mass
+    \item \textbf{Dissipation}: Kinetic energy is continuously converted to internal energy through viscous dissipation
+    \item \textbf{Wide range of scales}: From the largest energy-containing eddies to the smallest dissipative scales
+\end{itemize}
+
+\subsection{Reynolds Decomposition}
+
+To analyze turbulent flows, variables are decomposed into mean and fluctuating components. For any flow variable $\phi$:
+\begin{equation}
+    \phi = \bar{\phi} + \phi'
+    \label{eq:reynolds_decomp}
+\end{equation}
+where $\bar{\phi}$ is the time-averaged (or ensemble-averaged) mean and $\phi'$ is the fluctuating component. By definition, $\overline{\phi'} = 0$.
+
+Applying this decomposition to the velocity field:
+\begin{equation}
+    u_i = \bar{u}_i + u_i'
+    \label{eq:vel_decomp}
+\end{equation}
+
+\subsection{Reynolds-Averaged Navier-Stokes Equations}
+
+Substituting the Reynolds decomposition into the Navier-Stokes equations and time-averaging yields the Reynolds-Averaged Navier-Stokes (RANS) equations:
+\begin{equation}
+    \frac{\partial \bar{u}_i}{\partial t} + \bar{u}_j \frac{\partial \bar{u}_i}{\partial x_j} = -\frac{1}{\rho}\frac{\partial \bar{p}}{\partial x_i} + \nu \frac{\partial^2 \bar{u}_i}{\partial x_j \partial x_j} - \frac{\partial \overline{u_i' u_j'}}{\partial x_j}
+    \label{eq:rans}
+\end{equation}
+
+The term $\overline{u_i' u_j'}$ represents the Reynolds stress tensor, which arises from the nonlinear convective term and requires modeling. This is known as the closure problem of turbulence.
+
+\subsection{Energy Cascade}
+
+Richardson's concept of the energy cascade describes how energy is transferred from large to small scales in turbulent flows. Large eddies, containing most of the kinetic energy, are unstable and break down into smaller eddies. This process continues until the eddies become small enough that viscous forces dissipate their energy as heat.
+
+Kolmogorov's theory provides scaling laws for the smallest scales of turbulence. The Kolmogorov length scale $\eta$, time scale $\tau_\eta$, and velocity scale $u_\eta$ are:
+\begin{align}
+    \eta &= \left(\frac{\nu^3}{\varepsilon}\right)^{1/4} \label{eq:kolmogorov_length}\\
+    \tau_\eta &= \left(\frac{\nu}{\varepsilon}\right)^{1/2} \label{eq:kolmogorov_time}\\
+    u_\eta &= (\nu \varepsilon)^{1/4} \label{eq:kolmogorov_vel}
+\end{align}
+where $\varepsilon$ is the turbulent dissipation rate.
+
+\section{Turbulence Modeling Approaches}
+
+Three main approaches exist for simulating turbulent flows, differing in their treatment of the turbulent scales.
+
+\subsection{Direct Numerical Simulation (DNS)}
+
+DNS resolves all scales of turbulent motion by solving the Navier-Stokes equations without any turbulence modeling. The grid must be fine enough to capture the Kolmogorov scales, requiring:
+\begin{equation}
+    N \sim Re^{9/4}
+    \label{eq:dns_scaling}
+\end{equation}
+grid points in each direction for a three-dimensional simulation. This makes DNS computationally expensive and limits its application to relatively low Reynolds numbers and simple geometries. However, DNS provides the most accurate representation of turbulent flows and serves as a reference for validating turbulence models.
+
+\subsection{Reynolds-Averaged Navier-Stokes (RANS)}
+
+RANS solves for the time-averaged flow quantities, modeling all turbulent fluctuations through the Reynolds stress tensor. Common RANS models include:
+\begin{itemize}
+    \item \textbf{$k$-$\varepsilon$ model}: Two-equation model solving for turbulent kinetic energy $k$ and dissipation rate $\varepsilon$
+    \item \textbf{$k$-$\omega$ model}: Two-equation model using specific dissipation rate $\omega$ instead of $\varepsilon$
+    \item \textbf{Reynolds Stress Models}: Solve transport equations for each component of the Reynolds stress tensor
+\end{itemize}
+
+RANS is computationally efficient but cannot capture unsteady turbulent phenomena or provide instantaneous flow information.
+
+\subsection{Large Eddy Simulation (LES)}
+
+LES represents a compromise between DNS and RANS. Large, energy-containing eddies are resolved directly while small-scale turbulence is modeled through a subgrid-scale (SGS) model. This approach is based on the observation that:
+\begin{itemize}
+    \item Large eddies are geometry-dependent and carry most of the energy
+    \item Small eddies are more universal and isotropic
+    \item Modeling small scales introduces less error than modeling all scales
+\end{itemize}
+
+\section{Large Eddy Simulation}
+
+\subsection{Spatial Filtering}
+
+In LES, the flow variables are decomposed using a spatial filter rather than time averaging. For a variable $\phi$, the filtered quantity $\tilde{\phi}$ is defined as:
+\begin{equation}
+    \tilde{\phi}(\mathbf{x},t) = \int_\Omega G(\mathbf{x}-\mathbf{x}', \Delta) \phi(\mathbf{x}',t) d\mathbf{x}'
+    \label{eq:filter}
+\end{equation}
+where $G$ is the filter kernel and $\Delta$ is the filter width. Common filter types include:
+\begin{itemize}
+    \item \textbf{Box filter}: $G(\mathbf{x}) = 1/\Delta^3$ for $|x_i| \leq \Delta/2$
+    \item \textbf{Gaussian filter}: $G(\mathbf{x}) = \left(\frac{6}{\pi\Delta^2}\right)^{3/2} \exp\left(-\frac{6|\mathbf{x}|^2}{\Delta^2}\right)$
+    \item \textbf{Spectral cutoff filter}: Sharp cutoff in Fourier space
+\end{itemize}
+
+In practice, the grid itself often acts as an implicit filter with $\Delta$ related to the grid spacing.
+
+\subsection{Filtered Navier-Stokes Equations}
+
+Applying the filtering operation to the incompressible Navier-Stokes equations yields:
+\begin{align}
+    \frac{\partial \tilde{u}_i}{\partial x_i} &= 0 \label{eq:les_cont}\\
+    \frac{\partial \tilde{u}_i}{\partial t} + \frac{\partial (\tilde{u}_i \tilde{u}_j)}{\partial x_j} &= -\frac{1}{\rho}\frac{\partial \tilde{p}}{\partial x_i} + \nu \frac{\partial^2 \tilde{u}_i}{\partial x_j \partial x_j} - \frac{\partial \tau_{ij}^{sgs}}{\partial x_j}
+    \label{eq:les_mom}
+\end{align}
+
+The subgrid-scale stress tensor $\tau_{ij}^{sgs}$ represents the effect of unresolved scales on the resolved flow:
+\begin{equation}
+    \tau_{ij}^{sgs} = \widetilde{u_i u_j} - \tilde{u}_i \tilde{u}_j
+    \label{eq:sgs_stress}
+\end{equation}
+
+\subsection{Subgrid-Scale Models}
+
+The SGS stress tensor must be modeled to close the filtered equations. The most common approach uses the eddy viscosity concept:
+\begin{equation}
+    \tau_{ij}^{sgs} - \frac{1}{3}\tau_{kk}^{sgs}\delta_{ij} = -2\nu_{sgs}\tilde{S}_{ij}
+    \label{eq:eddy_visc}
+\end{equation}
+where $\tilde{S}_{ij}$ is the filtered strain rate tensor:
+\begin{equation}
+    \tilde{S}_{ij} = \frac{1}{2}\left(\frac{\partial \tilde{u}_i}{\partial x_j} + \frac{\partial \tilde{u}_j}{\partial x_i}\right)
+    \label{eq:strain_rate}
+\end{equation}
+
+\subsubsection{Smagorinsky Model}
+
+The Smagorinsky model relates the SGS viscosity to the local strain rate:
+\begin{equation}
+    \nu_{sgs} = (C_s \Delta)^2 |\tilde{S}|
+    \label{eq:smagorinsky}
+\end{equation}
+where $|\tilde{S}| = \sqrt{2\tilde{S}_{ij}\tilde{S}_{ij}}$ and $C_s$ is the Smagorinsky constant, typically around 0.1--0.2. The model is simple but has limitations:
+\begin{itemize}
+    \item Does not vanish at solid walls
+    \item Cannot predict backscatter (energy transfer from small to large scales)
+    \item Requires ad-hoc damping near walls
+\end{itemize}
+
+\subsubsection{Dynamic Smagorinsky Model}
+
+Germano et al. proposed the dynamic procedure, which computes the model coefficient from the resolved scales during the simulation:
+\begin{equation}
+    C_s^2 = \frac{\langle L_{ij} M_{ij} \rangle}{\langle M_{ij} M_{ij} \rangle}
+    \label{eq:dynamic_smag}
+\end{equation}
+where $L_{ij}$ is the Leonard stress and $M_{ij}$ involves the difference between strain rates at different filter levels. The angle brackets denote averaging over homogeneous directions or time.
+
+\subsubsection{WALE Model}
+
+The Wall-Adapting Local Eddy-viscosity (WALE) model provides correct near-wall behavior without explicit damping:
+\begin{equation}
+    \nu_{sgs} = (C_w \Delta)^2 \frac{(S_{ij}^d S_{ij}^d)^{3/2}}{(\tilde{S}_{ij}\tilde{S}_{ij})^{5/2} + (S_{ij}^d S_{ij}^d)^{5/4}}
+    \label{eq:wale}
+\end{equation}
+where $S_{ij}^d$ is the traceless symmetric part of the square of the velocity gradient tensor.
+
+\section{Wall Treatment in LES}
+
+The near-wall region presents particular challenges for LES due to the small turbulent scales that develop close to solid boundaries.
+
+\subsection{Wall-Resolved LES}
+
+In wall-resolved LES, the grid is refined to capture the viscous sublayer and buffer layer directly. This requires:
+\begin{itemize}
+    \item First grid point at $y^+ \approx 1$
+    \item Grid spacing in wall-parallel directions: $\Delta x^+ \approx 50$--$100$, $\Delta z^+ \approx 15$--$40$
+\end{itemize}
+where the wall units are defined using the friction velocity $u_\tau = \sqrt{\tau_w/\rho}$:
+\begin{equation}
+    y^+ = \frac{y u_\tau}{\nu}, \quad u^+ = \frac{u}{u_\tau}
+    \label{eq:wall_units}
+\end{equation}
+
+\subsection{Wall-Modeled LES}
+
+For high Reynolds number flows, wall-resolved LES becomes prohibitively expensive. Wall-modeled LES (WMLES) places the first grid point in the logarithmic layer ($y^+ > 30$) and uses a wall model to represent the near-wall region.
+
+\subsubsection{Law of the Wall}
+
+The mean velocity profile near a smooth wall follows distinct regions:
+\begin{itemize}
+    \item \textbf{Viscous sublayer} ($y^+ < 5$): $u^+ = y^+$
+    \item \textbf{Buffer layer} ($5 < y^+ < 30$): Transition region
+    \item \textbf{Logarithmic layer} ($y^+ > 30$): $u^+ = \frac{1}{\kappa}\ln(y^+) + B$
+\end{itemize}
+where $\kappa \approx 0.41$ is the von Kármán constant and $B \approx 5.2$ for smooth walls.
+
+\subsubsection{Enhanced Viscosity Approach}
+
+One approach to wall modeling involves increasing the effective viscosity near the wall to account for unresolved turbulent transport. The total viscosity becomes:
+\begin{equation}
+    \nu_{eff} = \nu + \nu_t^{wall}
+    \label{eq:eff_visc}
+\end{equation}
+where $\nu_t^{wall}$ is a modeled turbulent viscosity that captures the effect of unresolved near-wall eddies. This approach allows coarser grids near walls while maintaining the correct wall shear stress.
+
+\section{Channel Flow}
+
+The plane channel flow serves as a canonical test case for wall-bounded turbulence studies due to its geometric simplicity and well-documented behavior.
+
+\subsection{Configuration}
+
+The flow is driven by a pressure gradient between two parallel infinite plates separated by a distance $2h$. The flow is statistically steady and homogeneous in the streamwise ($x$) and spanwise ($z$) directions.
+
+\subsection{Friction Reynolds Number}
+
+The friction Reynolds number characterizes the flow:
+\begin{equation}
+    Re_\tau = \frac{u_\tau h}{\nu}
+    \label{eq:re_tau}
+\end{equation}
+where $u_\tau = \sqrt{\tau_w/\rho}$ is the friction velocity based on the wall shear stress $\tau_w$. This Reynolds number represents the ratio of the outer length scale $h$ to the viscous length scale $\nu/u_\tau$.
+
+\subsection{Mean Velocity Profile}
+
+In wall units, the mean velocity profile exhibits the classical law of the wall behavior. The friction velocity is related to the pressure gradient by:
+\begin{equation}
+    \tau_w = -h\frac{dp}{dx}
+    \label{eq:wall_shear}
+\end{equation}
+
+\subsection{Turbulent Statistics}
+
+Key quantities for characterizing turbulent channel flow include:
+\begin{itemize}
+    \item Reynolds stresses: $\overline{u_i' u_j'}$
+    \item Turbulent kinetic energy: $k = \frac{1}{2}\overline{u_i' u_i'}$
+    \item Root-mean-square velocity fluctuations: $u_{rms}^+ = \sqrt{\overline{u'^2}}/u_\tau$
+\end{itemize}
+
+These statistics, when obtained from DNS, serve as reference data for validating LES with various wall treatments.
+
+\section{Immersed Boundary Methods}
+
+Immersed boundary methods provide an alternative to body-fitted grids for simulating flows around complex geometries. The solid boundaries are represented on a fixed Cartesian grid, which simplifies grid generation and enables efficient handling of moving boundaries.
+
+\subsection{Concept and Motivation}
+
+In traditional body-fitted approaches, the computational grid conforms to the solid boundaries, requiring complex mesh generation and potential mesh quality issues near curved surfaces. Immersed boundary methods instead use a simple background grid (typically Cartesian) and impose boundary conditions through additional forcing terms or modified discretization near the immersed surface.
+
+The key advantages include:
+\begin{itemize}
+    \item Simple grid generation regardless of geometry complexity
+    \item Efficient handling of moving boundaries without remeshing
+    \item Straightforward parallelization on structured grids
+    \item Natural extension to multi-body problems
+\end{itemize}
+
+\subsection{Classification of Methods}
+
+Immersed boundary methods can be classified into two main categories:
+
+\subsubsection{Continuous Forcing Approach}
+
+The original immersed boundary method by Peskin adds a forcing term to the momentum equations:
+\begin{equation}
+    \frac{\partial \mathbf{u}}{\partial t} + (\mathbf{u} \cdot \nabla)\mathbf{u} = -\frac{1}{\rho}\nabla p + \nu \nabla^2 \mathbf{u} + \mathbf{f}_{IB}
+    \label{eq:ib_forcing}
+\end{equation}
+where $\mathbf{f}_{IB}$ is the immersed boundary forcing that enforces the desired velocity at the boundary. This forcing is distributed to the grid using a smoothed delta function.
+
+\subsubsection{Discrete Forcing Approach}
+
+Direct forcing methods modify the discrete equations near the boundary. The velocity at boundary points is directly set or interpolated to satisfy the boundary condition:
+\begin{equation}
+    u_{IB} = u_{desired}
+    \label{eq:direct_forcing}
+\end{equation}
+
+This approach provides sharper boundary representation and is well-suited for high Reynolds number flows.
+
+\subsection{Wall Treatment with Immersed Boundaries}
+
+Combining wall treatment with immersed boundaries requires special consideration. The wall model must:
+\begin{itemize}
+    \item Identify cells cut by the immersed boundary
+    \item Compute the wall distance for each affected cell
+    \item Apply the appropriate wall treatment based on the local $y^+$
+    \item Ensure smooth transition to the outer flow region
+\end{itemize}
+
+The enhanced viscosity approach is particularly compatible with immersed boundaries because it modifies a local property (viscosity) rather than imposing explicit velocity boundary conditions.
+
+\section{Internal Combustion Engine Flows}
+
+The flow within an internal combustion engine exhibits unique characteristics that distinguish it from canonical turbulent flows.
+
+\subsection{Engine Cycle and Flow Phases}
+
+A four-stroke engine cycle comprises distinct phases with different flow characteristics:
+
+\subsubsection{Intake Stroke}
+
+During intake, the piston moves downward, creating a pressure difference that draws fresh charge through the intake valve. The flow entering the cylinder forms a high-velocity jet that generates large-scale vortical structures.
+
+\subsubsection{Compression Stroke}
+
+As the piston moves upward, the in-cylinder gases are compressed. The large-scale structures generated during intake are modified by the changing volume and interact with the walls.
+
+\subsubsection{Expansion Stroke}
+
+Following combustion, the piston is driven downward by the expanding gases. The boundary layers on the piston and cylinder walls experience rapid changes in pressure and temperature.
+
+\subsubsection{Exhaust Stroke}
+
+The piston moves upward to expel the combustion products through the exhaust valve.
+
+\subsection{Large-Scale Flow Structures}
+
+Engine designers use intake port geometry to generate organized large-scale motions that enhance mixing and combustion:
+
+\subsubsection{Tumble}
+
+Tumble is a large-scale rotational motion about an axis perpendicular to the cylinder axis. It is generated by directing the intake flow toward one side of the combustion chamber. As compression proceeds, the tumble vortex is compressed and eventually breaks down into smaller-scale turbulence, enhancing the mixing before ignition.
+
+\subsubsection{Swirl}
+
+Swirl is rotation about the cylinder axis, generated by tangential entry of the intake flow. Swirl persists longer than tumble due to the axial symmetry and can enhance mixing during combustion.
+
+\subsubsection{Squish}
+
+Squish is the radial flow generated as the piston approaches the cylinder head, forcing gases from the periphery toward the center (or vice versa). Squish enhances turbulence near top dead center.
+
+\subsection{Non-Equilibrium Boundary Layers}
+
+Engine boundary layers differ from classical equilibrium boundary layers in several important aspects:
+
+\subsubsection{Pressure Gradient Effects}
+
+The rapid pressure changes during compression and expansion create strong favorable and adverse pressure gradients that affect boundary layer development:
+\begin{itemize}
+    \item Favorable gradients (during expansion) thin the boundary layer
+    \item Adverse gradients (during compression) thicken the boundary layer and can cause separation
+\end{itemize}
+
+\subsubsection{Unsteady Effects}
+
+The boundary layer does not have time to reach equilibrium between the different phases of the engine cycle. The wall shear stress and heat transfer lag behind the bulk flow changes.
+
+\subsubsection{History Effects}
+
+The boundary layer at any instant depends on the flow history, not just the instantaneous conditions. This makes equilibrium-based wall functions unreliable.
+
+\subsection{Heat Transfer in Engines}
+
+Heat transfer in engines is characterized by:
+\begin{itemize}
+    \item High peak heat flux during combustion (order of \SI{1}{MW/m^2})
+    \item Strong spatial variation across combustion chamber surfaces
+    \item Cycle-to-cycle variations in heat flux
+    \item Transient thermal boundary layers
+\end{itemize}
+
+The wall heat flux is commonly expressed using Newton's law of cooling:
+\begin{equation}
+    q_w = h(T_g - T_w)
+    \label{eq:heat_flux}
+\end{equation}
+where $h$ is the heat transfer coefficient, $T_g$ is the gas temperature, and $T_w$ is the wall temperature.
+
+Empirical correlations such as the Woschni correlation are commonly used in engine simulation:
+\begin{equation}
+    h = C \cdot B^{-0.2} \cdot p^{0.8} \cdot T^{-0.55} \cdot w^{0.8}
+    \label{eq:woschni}
+\end{equation}
+where $B$ is the bore, $p$ is the pressure, $T$ is the temperature, and $w$ is a characteristic velocity combining piston speed and combustion effects.
+
+\section{Optical Engines}
+
+Optical engines are research engines equipped with transparent components that allow visual access to the combustion chamber for laser-based measurements.
+
+\subsection{Design Features}
+
+Typical optical engine features include:
+\begin{itemize}
+    \item Extended piston with quartz or sapphire window in the crown
+    \item Transparent cylinder liner (quartz)
+    \item Mirror below the piston for through-piston imaging
+    \item Skip-firing operation to manage thermal loads
+\end{itemize}
+
+\subsection{Research Applications}
+
+Optical engines enable:
+\begin{itemize}
+    \item Particle Image Velocimetry (PIV) for velocity field measurement
+    \item Laser-Induced Fluorescence (LIF) for species concentration
+    \item High-speed imaging of combustion
+    \item Validation data for CFD simulations
+\end{itemize}
+
+\subsection{Limitations}
+
+Optical engine measurements have limitations:
+\begin{itemize}
+    \item Lower firing rates than production engines
+    \item Different thermal properties of transparent materials
+    \item Optical access constraints limit geometry modifications
+    \item Skip-firing affects cycle-to-cycle variations
+\end{itemize}
+
+Despite these limitations, optical engines provide valuable data for understanding in-cylinder processes and validating simulation methods.
+
+\section{The PsiPhi Solver}
+
+PsiPhi is an in-house computational fluid dynamics code developed at the University of Duisburg-Essen, primarily for the simulation of turbulent reacting flows. The solver has been applied to a wide range of combustion and engine-related problems.
+
+\subsection{Development History}
+
+PsiPhi originated from research activities at the Chair of Fluid Dynamics, with a focus on high-performance computing approaches for turbulent flow simulation. The code has been continuously developed and validated against experimental and benchmark data.
+
+\subsection{Key Features}
+
+The main characteristics of PsiPhi include:
+\begin{itemize}
+    \item Structured Cartesian grid approach for computational efficiency
+    \item Support for both \gls{dns} and \gls{les}
+    \item Immersed boundary method for complex geometry handling
+    \item Scalable parallelization for high-performance computing clusters
+    \item Various subgrid-scale models for \gls{les}
+    \item Combustion modeling capabilities for reacting flows
+\end{itemize}
+
+\subsection{Solver Approach}
+
+PsiPhi solves the incompressible Navier-Stokes equations using a finite volume discretization on a staggered grid. The pressure-velocity coupling is handled through a projection method (fractional step), ensuring mass conservation at each time step.
+
+The use of structured Cartesian grids enables:
+\begin{itemize}
+    \item Efficient memory access patterns
+    \item Simple implementation of high-order schemes
+    \item Straightforward domain decomposition for parallelization
+    \item Compatibility with immersed boundary methods for complex geometries
+\end{itemize}
+
+\subsection{Application Areas}
+
+PsiPhi has been applied to various flow configurations:
+\begin{itemize}
+    \item Turbulent jet flames and diffusion flames
+    \item Premixed combustion
+    \item Internal combustion engine simulations
+    \item Fundamental turbulence studies
+    \item Heat transfer problems
+\end{itemize}
+
+The combination of structured grids, immersed boundaries, and established turbulence modeling makes PsiPhi well-suited for the engine boundary layer studies in this work.

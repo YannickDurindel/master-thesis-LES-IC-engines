@@ -1,8 +1,198 @@
-% Define symbols here
-% Example:
-% \newglossaryentry{temp}{name=\ensuremath{T},
-%     description={temperature},
-%     unit={\si{K}},
-%     sort={atemperature},
-%     type=symbolslist
-% }
+% Fluid Properties
+\newglossaryentry{rho}{name=\ensuremath{\rho},
+    description={fluid density},
+    unit={\si{kg/m^3}},
+    sort={arho},
+    type=symbolslist
+}
+
+\newglossaryentry{mu}{name=\ensuremath{\mu},
+    description={dynamic viscosity},
+    unit={\si{Pa.s}},
+    sort={bmu},
+    type=symbolslist
+}
+
+\newglossaryentry{nu}{name=\ensuremath{\nu},
+    description={kinematic viscosity},
+    unit={\si{m^2/s}},
+    sort={cnu},
+    type=symbolslist
+}
+
+\newglossaryentry{kappa}{name=\ensuremath{\kappa},
+    description={thermal conductivity},
+    unit={\si{W/(m.K)}},
+    sort={dkappa},
+    type=symbolslist
+}
+
+% Velocity and Flow Variables
+\newglossaryentry{uvec}{name=\ensuremath{\mathbf{u}},
+    description={velocity vector},
+    unit={\si{m/s}},
+    sort={eu},
+    type=symbolslist
+}
+
+\newglossaryentry{p}{name=\ensuremath{p},
+    description={pressure},
+    unit={\si{Pa}},
+    sort={fp},
+    type=symbolslist
+}
+
+\newglossaryentry{T}{name=\ensuremath{T},
+    description={temperature},
+    unit={\si{K}},
+    sort={gT},
+    type=symbolslist
+}
+
+\newglossaryentry{E}{name=\ensuremath{E},
+    description={total energy per unit mass},
+    unit={\si{J/kg}},
+    sort={hE},
+    type=symbolslist
+}
+
+% Turbulence Quantities
+\newglossaryentry{k}{name=\ensuremath{k},
+    description={turbulent kinetic energy},
+    unit={\si{m^2/s^2}},
+    sort={ik},
+    type=symbolslist
+}
+
+\newglossaryentry{epsilon}{name=\ensuremath{\varepsilon},
+    description={turbulent dissipation rate},
+    unit={\si{m^2/s^3}},
+    sort={jepsilon},
+    type=symbolslist
+}
+
+\newglossaryentry{eta}{name=\ensuremath{\eta},
+    description={Kolmogorov length scale},
+    unit={\si{m}},
+    sort={keta},
+    type=symbolslist
+}
+
+\newglossaryentry{taueta}{name=\ensuremath{\tau_\eta},
+    description={Kolmogorov time scale},
+    unit={\si{s}},
+    sort={ltaueta},
+    type=symbolslist
+}
+
+% Wall-Related Quantities
+\newglossaryentry{tauw}{name=\ensuremath{\tau_w},
+    description={wall shear stress},
+    unit={\si{Pa}},
+    sort={mtauw},
+    type=symbolslist
+}
+
+\newglossaryentry{utau}{name=\ensuremath{u_\tau},
+    description={friction velocity},
+    unit={\si{m/s}},
+    sort={nutau},
+    type=symbolslist
+}
+
+\newglossaryentry{yplus}{name=\ensuremath{y^+},
+    description={dimensionless wall distance},
+    unit={--},
+    sort={oyplus},
+    type=symbolslist
+}
+
+\newglossaryentry{uplus}{name=\ensuremath{u^+},
+    description={dimensionless velocity},
+    unit={--},
+    sort={puplus},
+    type=symbolslist
+}
+
+% Dimensionless Numbers
+\newglossaryentry{Re}{name=\ensuremath{Re},
+    description={Reynolds number},
+    unit={--},
+    sort={qRe},
+    type=symbolslist
+}
+
+\newglossaryentry{Retau}{name=\ensuremath{Re_\tau},
+    description={friction Reynolds number},
+    unit={--},
+    sort={rRetau},
+    type=symbolslist
+}
+
+% LES Quantities
+\newglossaryentry{nusgs}{name=\ensuremath{\nu_{sgs}},
+    description={subgrid-scale viscosity},
+    unit={\si{m^2/s}},
+    sort={snusgs},
+    type=symbolslist
+}
+
+\newglossaryentry{Cs}{name=\ensuremath{C_s},
+    description={Smagorinsky constant},
+    unit={--},
+    sort={tCs},
+    type=symbolslist
+}
+
+\newglossaryentry{Delta}{name=\ensuremath{\Delta},
+    description={filter width / grid spacing},
+    unit={\si{m}},
+    sort={uDelta},
+    type=symbolslist
+}
+
+% Stress Tensors
+\newglossaryentry{tau}{name=\ensuremath{\boldsymbol{\tau}},
+    description={viscous stress tensor},
+    unit={\si{Pa}},
+    sort={vtau},
+    type=symbolslist
+}
+
+\newglossaryentry{Sij}{name=\ensuremath{S_{ij}},
+    description={strain rate tensor},
+    unit={\si{1/s}},
+    sort={wSij},
+    type=symbolslist
+}
+
+% Geometry
+\newglossaryentry{h}{name=\ensuremath{h},
+    description={channel half-height},
+    unit={\si{m}},
+    sort={xh},
+    type=symbolslist
+}
+
+% Wall Treatment
+\newglossaryentry{alpha}{name=\ensuremath{\alpha},
+    description={viscosity calibration factor},
+    unit={--},
+    sort={yalpha},
+    type=symbolslist
+}
+
+\newglossaryentry{nueff}{name=\ensuremath{\nu_{eff}},
+    description={effective viscosity},
+    unit={\si{m^2/s}},
+    sort={znueff},
+    type=symbolslist
+}
+
+% Constants
+\newglossaryentry{vonkarman}{name=\ensuremath{\kappa_{vK}},
+    description={von K\'{a}rm\'{a}n constant ($\approx 0.41$)},
+    unit={--},
+    sort={zavonkarman},
+    type=symbolslist
+}

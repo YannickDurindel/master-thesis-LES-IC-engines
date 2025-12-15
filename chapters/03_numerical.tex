@@ -1,0 +1,433 @@
+This chapter describes the numerical methods employed in this work, with particular focus on the in-house solver PsiPhi used for both \gls{dns} and \gls{les} simulations. The discretization schemes, time integration methods, and implementation of the wall treatment are presented.
+
+\section{The PsiPhi Solver}
+
+PsiPhi is an in-house computational fluid dynamics solver developed for the simulation of turbulent reacting flows. The solver is designed for high-performance computing environments and supports both \gls{dns} and \gls{les} approaches.
+
+\subsection{Governing Equations}
+
+PsiPhi solves the incompressible Navier-Stokes equations in their filtered form for \gls{les} or unfiltered form for \gls{dns}:
+\begin{align}
+    \frac{\partial u_i}{\partial x_i} &= 0 \label{eq:psiphi_cont}\\
+    \frac{\partial u_i}{\partial t} + \frac{\partial (u_i u_j)}{\partial x_j} &= -\frac{1}{\rho}\frac{\partial p}{\partial x_i} + \frac{\partial}{\partial x_j}\left[(\nu + \nu_t)\left(\frac{\partial u_i}{\partial x_j} + \frac{\partial u_j}{\partial x_i}\right)\right] + f_i
+    \label{eq:psiphi_mom}
+\end{align}
+where $\nu_t$ represents the turbulent viscosity, which is zero for \gls{dns} and computed from an \gls{sgs} model for \gls{les}.
+
+\section{Spatial Discretization}
+
+\subsection{Finite Volume Method}
+
+PsiPhi employs the \gls{fvm} for spatial discretization. The computational domain is divided into control volumes, and the governing equations are integrated over each control volume. For a general transport equation:
+\begin{equation}
+    \frac{\partial \phi}{\partial t} + \nabla \cdot (\mathbf{u}\phi) = \nabla \cdot (\Gamma \nabla \phi) + S_\phi
+    \label{eq:general_transport}
+\end{equation}
+the integration over a control volume $V$ with surface $A$ yields:
+\begin{equation}
+    \frac{\partial}{\partial t}\int_V \phi \, dV + \oint_A (\mathbf{u}\phi) \cdot d\mathbf{A} = \oint_A (\Gamma \nabla \phi) \cdot d\mathbf{A} + \int_V S_\phi \, dV
+    \label{eq:fvm_integral}
+\end{equation}
+
+\subsection{Grid Arrangement}
+
+The solver uses a staggered grid arrangement where:
+\begin{itemize}
+    \item Scalar quantities (pressure, temperature) are stored at cell centers
+    \item Velocity components are stored at cell faces
+\end{itemize}
+This arrangement prevents the checkerboard pressure oscillations that can occur with collocated grids and ensures strong pressure-velocity coupling.
+
+\subsection{Convective Term Discretization}
+
+The convective fluxes are discretized using a combination of schemes depending on the application:
+
+\subsubsection{Central Differencing Scheme}
+
+For \gls{dns} and well-resolved \gls{les}, the central differencing scheme (CDS) provides second-order accuracy:
+\begin{equation}
+    \phi_f = \frac{\phi_P + \phi_N}{2}
+    \label{eq:cds}
+\end{equation}
+where $\phi_f$ is the face value, and $\phi_P$ and $\phi_N$ are the values at the neighboring cell centers.
+
+\subsubsection{Upwind Scheme}
+
+For stability in convection-dominated flows, the upwind scheme can be employed:
+\begin{equation}
+    \phi_f = \begin{cases}
+        \phi_P & \text{if } (\mathbf{u} \cdot \mathbf{n})_f > 0 \\
+        \phi_N & \text{if } (\mathbf{u} \cdot \mathbf{n})_f < 0
+    \end{cases}
+    \label{eq:upwind}
+\end{equation}
+
+\subsubsection{TVD Schemes}
+
+Total Variation Diminishing (TVD) schemes provide a balance between accuracy and stability by using flux limiters. The face value is computed as:
+\begin{equation}
+    \phi_f = \phi_P + \frac{1}{2}\psi(r)(\phi_N - \phi_P)
+    \label{eq:tvd}
+\end{equation}
+where $\psi(r)$ is a limiter function and $r$ is the ratio of consecutive gradients.
+
+\subsection{Diffusive Term Discretization}
+
+The diffusive fluxes are discretized using central differencing:
+\begin{equation}
+    \left(\Gamma \frac{\partial \phi}{\partial x}\right)_f = \Gamma_f \frac{\phi_N - \phi_P}{\Delta x}
+    \label{eq:diffusion_disc}
+\end{equation}
+For non-orthogonal grids, correction terms are added to maintain accuracy.
+
+\section{Pressure-Velocity Coupling}
+
+\subsection{Projection Method}
+
+PsiPhi uses a fractional step (projection) method to enforce the incompressibility constraint. The algorithm proceeds as follows:
+
+\textbf{Step 1: Predictor step}
+
+Compute an intermediate velocity $u_i^*$ by solving the momentum equation without the pressure gradient:
+\begin{equation}
+    \frac{u_i^* - u_i^n}{\Delta t} = -\frac{\partial (u_i u_j)^n}{\partial x_j} + \nu \frac{\partial^2 u_i^n}{\partial x_j \partial x_j} + f_i
+    \label{eq:predictor}
+\end{equation}
+
+\textbf{Step 2: Pressure Poisson equation}
+
+The pressure is obtained by solving a Poisson equation derived from the continuity constraint:
+\begin{equation}
+    \nabla^2 p^{n+1} = \frac{\rho}{\Delta t}\nabla \cdot \mathbf{u}^*
+    \label{eq:pressure_poisson}
+\end{equation}
+
+\textbf{Step 3: Corrector step}
+
+The velocity is corrected to satisfy continuity:
+\begin{equation}
+    u_i^{n+1} = u_i^* - \frac{\Delta t}{\rho}\frac{\partial p^{n+1}}{\partial x_i}
+    \label{eq:corrector}
+\end{equation}
+
+\subsection{Poisson Solver}
+
+The pressure Poisson equation is solved using iterative methods. PsiPhi supports:
+\begin{itemize}
+    \item Jacobi iteration
+    \item Gauss-Seidel iteration
+    \item Successive Over-Relaxation (SOR)
+    \item Conjugate Gradient methods
+    \item Multigrid acceleration
+\end{itemize}
+
+\section{Temporal Discretization}
+
+\subsection{Explicit Time Integration}
+
+For the convective and source terms, explicit time integration schemes are employed:
+
+\subsubsection{Euler Method}
+
+The first-order Euler method:
+\begin{equation}
+    \phi^{n+1} = \phi^n + \Delta t \cdot F(\phi^n)
+    \label{eq:euler}
+\end{equation}
+
+\subsubsection{Runge-Kutta Methods}
+
+Higher-order accuracy is achieved using Runge-Kutta schemes. The third-order Runge-Kutta (RK3) method:
+\begin{align}
+    \phi^{(1)} &= \phi^n + \Delta t \cdot F(\phi^n) \\
+    \phi^{(2)} &= \frac{3}{4}\phi^n + \frac{1}{4}\phi^{(1)} + \frac{1}{4}\Delta t \cdot F(\phi^{(1)}) \\
+    \phi^{n+1} &= \frac{1}{3}\phi^n + \frac{2}{3}\phi^{(2)} + \frac{2}{3}\Delta t \cdot F(\phi^{(2)})
+    \label{eq:rk3}
+\end{align}
+
+\subsection{Time Step Restriction}
+
+The time step is limited by stability constraints:
+
+\subsubsection{CFL Condition}
+
+The Courant-Friedrichs-Lewy (CFL) condition for convective stability:
+\begin{equation}
+    \Delta t \leq \text{CFL} \cdot \min\left(\frac{\Delta x}{|u|}, \frac{\Delta y}{|v|}, \frac{\Delta z}{|w|}\right)
+    \label{eq:cfl}
+\end{equation}
+where CFL $\leq 1$ for explicit schemes.
+
+\subsubsection{Viscous Stability}
+
+The diffusive stability constraint:
+\begin{equation}
+    \Delta t \leq \frac{\Delta x^2}{2\nu}
+    \label{eq:viscous_stability}
+\end{equation}
+
+\section{Boundary Conditions}
+
+\subsection{Inlet Boundary}
+
+At inlet boundaries, velocity components are prescribed:
+\begin{equation}
+    u_i = u_{i,\text{inlet}}
+    \label{eq:inlet_bc}
+\end{equation}
+For turbulent inflow, synthetic turbulence generators or recycling methods can be employed.
+
+\subsection{Outlet Boundary}
+
+Convective outflow conditions allow disturbances to exit the domain:
+\begin{equation}
+    \frac{\partial \phi}{\partial t} + U_c \frac{\partial \phi}{\partial n} = 0
+    \label{eq:convective_outlet}
+\end{equation}
+where $U_c$ is the convection velocity and $n$ is the outward normal direction.
+
+\subsection{Wall Boundary}
+
+At solid walls, the no-slip condition is applied:
+\begin{equation}
+    u_i = 0
+    \label{eq:no_slip}
+\end{equation}
+
+For the pressure, a zero normal gradient condition is used:
+\begin{equation}
+    \frac{\partial p}{\partial n} = 0
+    \label{eq:pressure_wall}
+\end{equation}
+
+\subsection{Periodic Boundary}
+
+For channel flow simulations, periodic boundary conditions are applied in the streamwise and spanwise directions:
+\begin{equation}
+    \phi(x) = \phi(x + L_x), \quad \phi(z) = \phi(z + L_z)
+    \label{eq:periodic}
+\end{equation}
+
+\section{Immersed Boundary Implementation}
+
+PsiPhi uses an immersed boundary method to represent complex geometries on the Cartesian grid. This section describes the implementation details.
+
+\subsection{Geometry Representation}
+
+The solid geometry is represented using a signed distance function $\phi(\mathbf{x})$:
+\begin{equation}
+    \phi(\mathbf{x}) = \begin{cases}
+        > 0 & \text{fluid region} \\
+        = 0 & \text{boundary surface} \\
+        < 0 & \text{solid region}
+    \end{cases}
+    \label{eq:signed_distance}
+\end{equation}
+
+The distance function is computed from the CAD geometry (typically STL format) and stored on the grid. For moving boundaries, the distance function is updated at each time step.
+
+\subsection{Cell Classification}
+
+Grid cells are classified based on the signed distance function:
+\begin{itemize}
+    \item \textbf{Fluid cells}: Entirely in the fluid region ($\phi > 0$ at all vertices)
+    \item \textbf{Solid cells}: Entirely in the solid region ($\phi < 0$ at all vertices)
+    \item \textbf{Cut cells}: Intersected by the boundary (mixed signs at vertices)
+\end{itemize}
+
+Cut cells require special treatment to enforce boundary conditions while maintaining conservation.
+
+\subsection{Velocity Boundary Conditions}
+
+The no-slip condition at immersed boundaries is enforced through direct forcing. For a cut cell, the velocity is interpolated to satisfy:
+\begin{equation}
+    u_{IB} = u_{wall} + (u_{fluid} - u_{wall}) \cdot f(\phi)
+    \label{eq:ib_velocity}
+\end{equation}
+where $f(\phi)$ is a blending function based on the distance to the wall.
+
+For moving boundaries such as the piston, the wall velocity $u_{wall}$ corresponds to the local surface velocity.
+
+\subsection{Pressure Treatment}
+
+The pressure in solid cells is extrapolated from the fluid region to ensure smooth pressure gradients across the immersed boundary:
+\begin{equation}
+    \frac{\partial p}{\partial n}\bigg|_{wall} = 0
+    \label{eq:ib_pressure}
+\end{equation}
+
+This Neumann condition is consistent with the no-penetration constraint at solid walls.
+
+\section{LES Implementation}
+
+\subsection{Subgrid-Scale Model}
+
+For \gls{les}, PsiPhi implements the Smagorinsky model with the \gls{sgs} viscosity:
+\begin{equation}
+    \nu_{sgs} = (C_s \Delta)^2 |\tilde{S}|
+    \label{eq:sgs_psiphi}
+\end{equation}
+where $\Delta = (\Delta x \cdot \Delta y \cdot \Delta z)^{1/3}$ is the filter width based on the local grid spacing.
+
+\subsection{Near-Wall Treatment}
+
+Near solid walls, the Smagorinsky model requires damping to account for the reduced turbulent length scales. The van Driest damping function is applied:
+\begin{equation}
+    f_d = 1 - \exp\left(-\frac{y^+}{A^+}\right)
+    \label{eq:van_driest}
+\end{equation}
+where $A^+ \approx 25$ is the damping constant.
+
+\section{Wall Treatment: Enhanced Molecular Viscosity Approach}
+
+The primary focus of this work is the development of a novel wall treatment for \gls{les} that accounts for boundary-layer effects by introducing a locally increased molecular viscosity near the walls. This approach is specifically designed for use with immersed boundaries.
+
+\subsection{Motivation}
+
+Classical wall functions fail under the rapidly changing and non-equilibrium conditions of internal combustion engines. The enhanced molecular viscosity approach offers several advantages:
+\begin{itemize}
+    \item Does not assume equilibrium boundary layer profiles
+    \item Compatible with immersed boundary methods
+    \item Computationally efficient for complex moving geometries
+    \item Can be calibrated and verified against standard wall functions
+\end{itemize}
+
+\subsection{Formulation}
+
+The effective viscosity in the near-wall region is modified to account for unresolved turbulent transport:
+\begin{equation}
+    \nu_{eff}(y) = \nu \cdot \left(1 + \alpha \cdot f(y/\delta)\right)
+    \label{eq:enhanced_mol_visc}
+\end{equation}
+where:
+\begin{itemize}
+    \item $\nu$ is the molecular (kinematic) viscosity
+    \item $\alpha$ is the enhancement factor (to be determined)
+    \item $f(y/\delta)$ is a profile function depending on wall distance
+    \item $\delta$ is a characteristic length scale (boundary layer thickness or cell size)
+\end{itemize}
+
+The key distinction from turbulent viscosity models is that this approach directly manipulates the molecular viscosity coefficient, which governs the diffusive fluxes in the momentum equation.
+
+\subsection{1D Model Development}
+
+A one-dimensional model is developed to determine the viscosity profile across the boundary layer. The 1D model solves a simplified momentum balance in the wall-normal direction:
+\begin{equation}
+    \frac{d}{dy}\left(\nu_{eff}(y) \frac{du}{dy}\right) = \frac{1}{\rho}\frac{dp}{dx}
+    \label{eq:1d_model}
+\end{equation}
+
+This equation is integrated from the wall to the edge of the boundary layer to obtain the velocity profile and wall shear stress. The viscosity profile $\nu_{eff}(y)$ is adjusted to match the law of the wall behavior.
+
+\subsection{Verification Strategy}
+
+The model is verified using standard wall functions. For equilibrium boundary layers, the enhanced viscosity model should reproduce:
+\begin{itemize}
+    \item Linear velocity profile in the viscous sublayer: $u^+ = y^+$
+    \item Logarithmic profile in the log layer: $u^+ = \frac{1}{\kappa}\ln(y^+) + B$
+    \item Correct wall shear stress: $\tau_w = \mu \frac{\partial u}{\partial y}\bigg|_{wall}$
+\end{itemize}
+
+The verification ensures that the model recovers classical results before application to non-equilibrium engine flows.
+
+\subsection{Implementation in PsiPhi}
+
+The enhanced viscosity is implemented by modifying the diffusive term in the momentum equation for cells near immersed boundaries:
+
+\textbf{Step 1: Wall Distance Computation}
+
+For each cell near an immersed boundary, the wall distance $y$ is computed from the signed distance function.
+
+\textbf{Step 2: Viscosity Enhancement}
+
+The local viscosity is modified according to:
+\begin{equation}
+    \nu_{cell} = \nu \cdot \left(1 + \alpha \cdot f\left(\frac{y}{\Delta}\right)\right)
+    \label{eq:implementation_visc}
+\end{equation}
+where $\Delta$ is the local grid spacing.
+
+\textbf{Step 3: Blending}
+
+A smooth transition to the standard \gls{les} viscosity is applied:
+\begin{equation}
+    \nu_{total} = \nu_{cell} + \nu_{sgs}
+    \label{eq:total_visc}
+\end{equation}
+
+The blending function $f$ approaches zero far from the wall, ensuring that the standard \gls{les} behavior is recovered in the bulk flow.
+
+\subsection{Coupling with Immersed Boundaries}
+
+The enhanced viscosity wall treatment is naturally coupled with the immersed boundary method:
+\begin{itemize}
+    \item The signed distance function provides the wall distance
+    \item Cut cells receive the enhanced viscosity based on their distance to the surface
+    \item Moving boundaries automatically update the wall distance
+    \item No special grid requirements near the wall
+\end{itemize}
+
+This coupling enables consistent treatment of all solid surfaces in the engine, including the moving piston.
+
+\section{Channel Flow Configuration}
+
+\subsection{Computational Domain}
+
+The channel flow simulations use a domain of size $L_x \times L_y \times L_z$ with:
+\begin{itemize}
+    \item $L_x = 2\pi h$ in the streamwise direction
+    \item $L_y = 2h$ in the wall-normal direction (channel half-height $h$)
+    \item $L_z = \pi h$ in the spanwise direction
+\end{itemize}
+
+\subsection{Grid Requirements}
+
+For \gls{dns}, the grid resolution must satisfy:
+\begin{itemize}
+    \item $\Delta x^+ \approx 10$--$15$ (streamwise)
+    \item $\Delta y^+_{wall} < 1$ (first cell at wall)
+    \item $\Delta z^+ \approx 5$--$10$ (spanwise)
+\end{itemize}
+
+For \gls{les} with wall treatment:
+\begin{itemize}
+    \item $\Delta x^+ \approx 50$--$100$ (streamwise)
+    \item $\Delta y^+_{wall} \approx 1$--$30$ depending on wall model
+    \item $\Delta z^+ \approx 20$--$50$ (spanwise)
+\end{itemize}
+
+\subsection{Flow Driving}
+
+The channel flow is driven by a constant pressure gradient in the streamwise direction. The pressure gradient is related to the target friction Reynolds number:
+\begin{equation}
+    \frac{dp}{dx} = -\frac{\rho u_\tau^2}{h} = -\frac{\rho \nu^2 Re_\tau^2}{h^3}
+    \label{eq:pressure_gradient}
+\end{equation}
+
+\section{Post-Processing and Statistics}
+
+\subsection{Temporal Averaging}
+
+Statistical quantities are computed by time-averaging over a sufficiently long period after the flow has reached a statistically steady state:
+\begin{equation}
+    \langle \phi \rangle = \frac{1}{T}\int_0^T \phi(t) \, dt
+    \label{eq:time_avg}
+\end{equation}
+
+\subsection{Spatial Averaging}
+
+For channel flow, additional averaging is performed over the homogeneous directions (streamwise and spanwise):
+\begin{equation}
+    \langle \phi \rangle_{xz} = \frac{1}{L_x L_z}\int_0^{L_x}\int_0^{L_z} \phi(x,y,z) \, dx \, dz
+    \label{eq:spatial_avg}
+\end{equation}
+
+\subsection{Computed Quantities}
+
+The following quantities are extracted for comparison:
+\begin{itemize}
+    \item Mean velocity: $\langle u \rangle^+ = \langle u \rangle / u_\tau$
+    \item Velocity fluctuations: $u_{rms}^+ = \sqrt{\langle u'^2 \rangle} / u_\tau$
+    \item Reynolds shear stress: $\langle u'v' \rangle^+ = \langle u'v' \rangle / u_\tau^2$
+    \item Turbulent kinetic energy: $k^+ = k / u_\tau^2$
+\end{itemize}

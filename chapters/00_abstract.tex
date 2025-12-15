@@ -1,1 +1,9 @@
-% Abstract content goes here
+Wall-bounded flows in internal combustion engines are inherently complex due to the formation of boundary layers near multiple surfaces. The piston surface is particularly significant owing to its large area, continuous motion, and strong influence on overall heat transfer and large-scale flow structures such as the tumble vortex. Unlike steady external flows, engine flows are highly unsteady and dominated by pressure fluctuations and non-equilibrium effects, causing classical wall function assumptions to fail.
+
+This thesis proposes a novel boundary layer modeling approach for Large Eddy Simulation (LES) that accounts for near-wall effects by introducing a locally increased molecular viscosity near the walls, which are modeled using immersed boundaries. The approach is implemented in the in-house solver PsiPhi, which uses structured Cartesian grids with immersed boundary methods for complex geometry handling.
+
+A one-dimensional model is developed to relate the enhanced viscosity to local flow conditions and wall distance. The model is verified using standard wall functions to ensure correct behavior in equilibrium conditions before application to engine flows.
+
+The methodology is applied to simulate the University of Duisburg-Essen optical engine. A CAD model of the engine is generated with emphasis on accurate valve seat geometry, and a numerical grid with 0.2~mm cell size is created, totaling approximately 250 million cells. LES simulations are performed first for a simplified engine configuration to conduct grid sensitivity analysis, followed by simulations of the full optical engine geometry.
+
+Post-processing focuses on piston-wall phenomena including shear stress evolution over the piston surface, heat transfer through the piston wall, and assessment of boundary layer detachment. Results demonstrate the capability of the enhanced molecular viscosity approach to capture near-wall turbulent transport on coarse grids while maintaining compatibility with immersed boundary methods for moving geometries.
