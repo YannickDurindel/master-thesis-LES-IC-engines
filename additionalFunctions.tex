@@ -1,0 +1,114 @@
+%-------------------------------------------------------------------------------------------------------------------- 
+%                                       Basic stuff
+%-------------------------------------------------------------------------------------------------------------------- 
+
+% do not show the box of framebox, somehow frambox fixed the bug of dir-trees not being next to each other
+% \setlength{\fboxrule}{0pt}
+
+% adjust the size of \chapter{}
+\makeatletter
+\renewcommand{\@makechapterhead}[1]{%
+\vspace*{0 pt}%
+{\setlength{\parindent}{0pt} \raggedright \normalfont
+\bfseries\LARGE
+\ifnum \value{secnumdepth}>1 
+    \if@mainmatter\thechapter.\ \fi%
+\fi
+#1\par\nobreak\vspace{10 pt}}}
+\makeatother
+
+%% Right vertical brace 
+% \newenvironment{rcases}
+%   {\left.\begin{aligned}}
+%   {\end{aligned}\right\rbrace}
+
+% define a command for chemical reactions
+\newcommand*\ch[1]{\ensuremath{\mathrm{#1}}}
+
+%create a multiline comment by using \mycomment{ ... }
+\newcommand{\mycomment}[1]{}     
+
+%--------------------------------------------------------------------------------------------------------------------
+%                                       inline code background highlighting
+%--------------------------------------------------------------------------------------------------------------------
+\usepackage{soul}
+\newcommand{\inlcode}[1]{%
+  \begingroup
+  \definecolor{mygray}{rgb}{0.9,0.9,0.9}\sethlcolor{mygray}%
+  \hl{#1}%
+  \endgroup
+}
+
+%-------------------------------------------------------------------------------------------------------------------- 
+%                                       listings for code inclusion
+%-------------------------------------------------------------------------------------------------------------------- 
+% \begingroup
+% \let\oldnumberline\numberline
+% \renewcommand{\numberline}[1]{\hspace{-1.5em}Code \oldnumberline{#1:}}
+% \lstlistoflistings
+% \endgroup
+\makeatletter
+\renewcommand{\l@lstlisting}[2]{%
+  \@dottedtocline{1}{0em}{1.5em}{\lstlistingname\ #1}{#2}%
+}
+\makeatother
+
+% define a skip option for the line numbers in lstlisting with supress and reactivate
+\let\origthelstnumber\thelstnumber
+\makeatletter
+\newcommand*\Suppressnumber{%
+  \lst@AddToHook{OnNewLine}{%
+    \let\thelstnumber\relax%
+     \advance\c@lstnumber-\@ne\relax%
+    }%
+}
+
+\newcommand*\Reactivatenumber[1]{%
+  \setcounter{lstnumber}{\numexpr#1-1\relax}
+  \lst@AddToHook{OnNewLine}{%
+   \let\thelstnumber\origthelstnumber%
+   \refstepcounter{lstnumber}%
+  }%
+}
+\makeatother
+
+%-------------------------------------------------------------------------------------------------------------------- 
+%                                       glossary styles for acronyms & symbols
+%-------------------------------------------------------------------------------------------------------------------- 
+% used for acronyms
+\newglossarystyle{mystyle}{%
+    \setglossarystyle{long}%   
+    %\setlength\LTleft{0pt}%
+    \renewenvironment{theglossary}%
+    {\begin{longtable}[]{@{}>{\raggedright}p{0.3\textwidth}<{\dotfill}@{}>{\hspace{-0.44em}\dotfill\raggedleft}p{0.7\textwidth}@{}}} %@{}to remove padding spaces between colums
+    {\end{longtable}}%
+    }
+
+% \setlength{\glsdescwidth}{18cm} %15cm
+\newglossary[slg]{symbolslist}{syi}{syg}{List of Symbols} % create additional symbols list
+\glsaddkey{unit}{\glsentrytext{\glslabel}}{\glsentryunit}{\GLsentryunit}{\glsunit}{\Glsunit}{\GLSunit}
+\glssetnoexpandfield{unit}
+
+\newglossarystyle{symbunitlong}{%
+    \setglossarystyle{long3col}% base this style on the list style
+    %\setlength{\glsdescwidth}{\linewidth}%
+    \renewenvironment{theglossary}{% Change the table type --> 3 columns
+        \settowidth{\dimen0}{\bfseries Superscripts}% previously Symbols but superscripts as heading is longer
+        \settowidth{\dimen1}{\bfseries \si{\per\second}  $\wedge$ \si{\kelvin\tothe{\mathrm{\beta}}\per\second}}%Unit % use the longest unit definition here
+        % Adjust the width of the description column
+        \begin{longtable}{@{}l p{\dimexpr\linewidth-\dimen0-\dimen1}l@{}}}%
+        {\end{longtable}}%
+    \renewcommand*{\glossaryheader}{%  Change the table header
+        \bfseries & \bfseries Description & \bfseries Unit \\\hline
+        \endhead}
+    \renewcommand*{\glossentry}[2]{%  Change the displayed items
+        \glstarget{##1}{\glossentryname{##1}} %
+        & \glossentrydesc{##1}% Description
+        & \glsunit{##1}  \tabularnewline
+    }%
+    % use groupheadings with the sort={}
+    \renewcommand*{\glsgroupheading}[1]{\tabularnewline\textbf{\glsgetgrouptitle{##1}\bigskip}\\}%
+    \newcommand*{\Agroupname}{Symbols}
+    \newcommand*{\Sgroupname}{Subscripts}
+    \newcommand*{\Hgroupname}{Superscripts}
+    }

@@ -1,0 +1,194 @@
+%--------------------------------------------------------------------------------------------------------------------
+%--------------------------------  packages + package settings-------------------------------------------------------
+%-------------------------------------------------------------------------------------------------------------------- 
+\documentclass[11pt]{report} %twoside,openright %for thesis to print
+%\widowpenalty10000
+%\clubpenalty10000
+\usepackage[utf8]{inputenc}
+\usepackage[final]{graphicx}
+    \graphicspath{{./images/}}
+\usepackage{caption}
+    \captionsetup{justification=raggedright,singlelinecheck=false}
+\usepackage{subcaption}
+\usepackage{geometry}
+    \geometry{
+        a4paper,
+        width=150mm,
+        top=25mm,
+        bottom=25mm,
+        % showframe, % show the outline of the document
+        % bindingoffset=6mm,
+        % asymmetric
+        } %for printing!
+\usepackage{fancyhdr}
+    \pagestyle{fancy}
+    \renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+    \setlength{\headheight}{15pt}
+    \fancyhead{}
+    \fancyhead[RO]{\leftmark} %RO,LE
+    \fancyhead[LO]{LES of IC Engines} %LO,CE
+    \fancyhead[RE]{LES of IC Engines} %RO,LE
+    \fancyhead[LE]{\leftmark} %LO,CE
+    \fancyfoot{}
+    \fancyfoot[RO]{\thepage}%LE,RO
+    \fancyfoot[LO]{L. Bernau} %CO,RE
+    \fancyfoot[RE]{L. Bernau}%LE,RO
+    \fancyfoot[LE]{\thepage} %CO,RE
+    \renewcommand{\headrulewidth}{0.4pt}
+    \renewcommand{\footrulewidth}{0.4pt}
+\usepackage{extramarks}
+\usepackage[titles]{tocloft} %set up List of Figures and Tables
+    \renewcommand{\cftfigpresnum}{Fig.\ }
+    \renewcommand{\cfttabpresnum}{Tab.\ }
+    \newlength{\mylenf}
+    \settowidth{\mylenf}{\cftfigpresnum}
+    \setlength{\cftfignumwidth}{\dimexpr\mylenf+2em}
+    \settowidth{\mylenf}{\cfttabpresnum}
+    \setlength{\cfttabnumwidth}{\dimexpr\mylenf+2em}
+    \setlength{\cfttabindent}{0pt} %for tables
+    \setlength{\cftfigindent}{0pt} %for figures
+\usepackage{parskip} % Paragraph options
+    \setlength\parskip{1ex}
+    \setlength\parindent{0pt}
+\usepackage{titlesec} %spacing of a main section 1, 2, 3...
+    \titlespacing*{\section}
+       {0pt}{4ex plus 1ex minus .2ex}{3ex plus .2ex}
+\usepackage{tabularx} %change the table caption alignment
+    \captionsetup[table]{skip=0pt,singlelinecheck=off}
+\usepackage{eso-pic} %to insert pictures at any place, e.g. title page
+\usepackage{dirtree} %used to create directory trees
+    \newcommand\mydirtree[1]{{\small\dirtree{#1}\par}}
+\usepackage{xcolor}
+\usepackage{newverbs}
+\usepackage{listings} % to insert code 
+    \lstset{basicstyle=\ttfamily\footnotesize, breaklines=true, numbers=left, frame=single, xleftmargin=3em, framexleftmargin=2.5em, escapechar=@}
+    \renewcommand\lstlistingname{Code}
+    \renewcommand\lstlistlistingname{List of Code}
+\usepackage{tikz-qtree}
+\usepackage{forest}
+\usepackage{amssymb} % mathematical symbols
+
+\usepackage{hyperref} % (hyper-)link settings
+    \hypersetup{
+        hidelinks,
+        }
+    \urlstyle{same}
+
+%           | appear in the table of contents   
+%                | avoiding line number corresponding to the glossary entry
+%                              | dont group entries and insert linebreak (e.g. all A's are grouped)
+\usepackage[toc, nonumberlist, nogroupskip, nopostdot]{glossaries}   
+\usepackage{siunitx} % used for symbol glossary, but also usefull for other stuff
+
+\usepackage{float}
+\usepackage[style=numeric,sorting=none,url=false,maxbibnames=99]{biblatex} %authoryear, none
+    % \setcounter{biburlnumpenalty}{8000}
+    % \setcounter{biburlucpenalty}{8000}
+    % \setcounter{biburllcpenalty}{8000}
+    \addbibresource{references.bib}
+    \AtEveryBibitem{
+        \clearfield{month}
+        \clearfield{series}
+        \clearfield{venue}
+        \clearname{editor}
+        \clearlist{publisher}
+        \clearlist{location} % alias to field 'address'
+        %\clearfield{doi}
+        %\clearfield{url}
+        \clearfield{venue}
+        \clearfield{issn}
+        \clearfield{isbn}
+        %\clearfield{urldate}
+        \clearfield{eventdate}
+        %\clearfield{pages}
+        %\clearfield{booktitle}
+        %\clearfield{journaltitle}
+        %\clearfield{number}
+        } 
+    \renewbibmacro{in:}{}
+
+\usepackage{eurosym}
+\usepackage{lipsum}
+% \usepackage[export]{adjustbox} % to add a), b) to the top a subfigures, s. figure 3.2 in code for example
+
+%--------------------------------------------------------------------------------------------------------------------
+%--------------------------------  creation of new functions + settings---------------------------------------------- 
+%-------------------------------------------------------------------------------------------------------------------- 
+\input{additionalFunctions.tex}
+
+
+%--------------------------------------------------------------------------------------------------------------------
+%--------------------------------  Document starting  --------------------------------------------------------------- 
+%-------------------------------------------------------------------------------------------------------------------- 
+\makeglossaries 
+\loadglsentries{acronyms.tex}
+\loadglsentries{symbols.tex}
+
+
+\begin{document}
+
+% \maketitle
+\input{chapters/00_titlepage.tex}
+
+\clearpage
+\chapter*{Abstract}
+\thispagestyle{empty}
+\input{chapters/00_abstract.tex}
+
+\chapter*{Acknowledgment}
+\thispagestyle{empty}
+\input{chapters/00_acknowledgment.tex}
+
+% Table of Contents
+\cleardoublepage
+\pagenumbering{roman}
+\tableofcontents
+\clearpage
+
+% List of Tables
+\phantomsection     % needs to be here due to hyperref
+\listoftables
+\addcontentsline{toc}{chapter}{\listtablename}
+
+% List of Figures
+\phantomsection
+\listoffigures
+\addcontentsline{toc}{chapter}{\listfigurename}
+
+% List of Code
+\phantomsection
+\lstlistoflistings % can be used to show code passages
+\addcontentsline{toc}{chapter}{\lstlistlistingname}
+
+%\phantomsection
+%\addcontentsline{toc}{chapter}{\acronymtype}
+%% \glsaddall % for testing
+\printglossary[title={List of Abbreviations},type=\acronymtype, style=mystyle]
+\printglossary[type=symbolslist,style=symbunitlong]
+
+% \chapter{Examples}\label{chap:examples}
+% \input{chapters/xx_simpleexamples.tex}
+
+\chapter{Introduction}
+\pagenumbering{arabic}
+\input{chapters/01_introduction.tex}
+
+\chapter{State of the Art}
+\input{chapters/02_state}
+
+\begingroup
+\setlength{\emergencystretch}{8em}
+\printbibliography[heading=bibintoc]
+\endgroup
+
+\appendix
+\chapter{Appendix}
+\input{chapters/appendixA.tex}
+\chapter{Appendix: Additonal Results}
+\input{chapters/appendixB.tex}
+
+\clearpage
+\thispagestyle{empty}
+\input{chapters/99_eidesstattliche.tex}
+
+\end{document}
