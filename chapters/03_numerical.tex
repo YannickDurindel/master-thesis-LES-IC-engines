@@ -38,6 +38,19 @@ The solver uses a staggered grid arrangement where:
 \end{itemize}
 This arrangement prevents the checkerboard pressure oscillations that can occur with collocated grids and ensures strong pressure-velocity coupling.
 
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/staggered_grid.pdf}
+    \caption{Staggered grid arrangement used in PsiPhi. Pressure is stored at cell centers (circles), while velocity components are stored at cell faces: $u$-velocity at vertical faces (squares) and $v$-velocity at horizontal faces (triangles). This arrangement naturally couples pressure and velocity, preventing numerical oscillations.}
+    \label{fig:staggered_grid}
+\end{figure}
+
+\paragraph{Why Staggered Grids?}
+
+The choice of a staggered grid arrangement deserves explanation, as it impacts how the equations are discretized and how boundary conditions are applied. On a collocated grid (where all variables are stored at the same location), the pressure gradient is computed using values two cells apart. This can lead to a decoupling where alternating high and low pressures satisfy the discrete equations equally well---the infamous ``checkerboard'' pattern.
+
+On a staggered grid, the pressure gradient acting on a velocity component uses pressure values from immediately adjacent cells, creating a tight coupling. When we compute $u$ at a face, we use pressures from the cells on either side of that face. This direct connection eliminates the checkerboard problem and provides robust pressure-velocity coupling without requiring additional stabilization techniques.
+
 \subsection{Convective Term Discretization}
 
 The convective fluxes are discretized using a combination of schemes depending on the application:
@@ -71,6 +84,20 @@ Total Variation Diminishing (TVD) schemes provide a balance between accuracy and
 \end{equation}
 where $\psi(r)$ is a limiter function and $r$ is the ratio of consecutive gradients.
 
+\paragraph{Choosing the Right Scheme: A Practical Guide}
+
+The choice between these discretization schemes depends on the simulation type and the trade-offs between accuracy and stability:
+
+\begin{itemize}
+    \item \textbf{Central Differencing (CDS)}: Use for DNS and well-resolved LES where the grid is fine enough to capture all relevant scales. CDS is second-order accurate and does not introduce numerical diffusion, making it ideal for capturing the energy cascade accurately. However, CDS can become unstable on coarse grids or in regions of strong gradients.
+
+    \item \textbf{Upwind}: Use when stability is paramount, such as in coarse RANS simulations or regions with very strong convection. Upwind is unconditionally stable but introduces numerical diffusion that can smear gradients and artificially dissipate turbulent structures. For turbulence simulations, this artificial dissipation is generally unacceptable.
+
+    \item \textbf{TVD Schemes}: Use when you need a balance---for example, in LES on moderately resolved grids or in regions where CDS produces spurious oscillations. TVD schemes adapt locally: they behave like CDS in smooth regions (preserving accuracy) and switch toward upwind near sharp gradients (ensuring stability). The limiter function $\psi(r)$ controls this transition.
+\end{itemize}
+
+For the channel flow simulations in this work, CDS is used throughout, as the grid resolution is sufficient to maintain stability while preserving the accuracy needed for turbulence statistics.
+
 \subsection{Diffusive Term Discretization}
 
 The diffusive fluxes are discretized using central differencing:
@@ -82,7 +109,19 @@ For non-orthogonal grids, correction terms are added to maintain accuracy.
 
 \section{Pressure-Velocity Coupling}
 
+The incompressible Navier-Stokes equations present a numerical challenge: the pressure does not appear in the continuity equation explicitly, yet it must adjust instantaneously to ensure the velocity field remains divergence-free. This coupling between pressure and velocity requires special treatment.
+
 \subsection{Projection Method}
+
+\paragraph{The Physical Picture}
+
+Before diving into the mathematics, it helps to understand the physical role of pressure. In incompressible flow, pressure is not a thermodynamic variable (as it would be in compressible flow) but rather a Lagrange multiplier that enforces the incompressibility constraint. The pressure adjusts to whatever value is needed to keep the velocity field divergence-free.
+
+The projection method exploits this by splitting the time advancement into two stages:
+\begin{enumerate}
+    \item First, we advance the velocity using the momentum equation but ignore pressure. This gives an intermediate velocity field that generally does not satisfy continuity.
+    \item Second, we compute a pressure field that ``projects'' this intermediate velocity onto the space of divergence-free fields. The result is a velocity that satisfies both momentum and continuity.
+\end{enumerate}
 
 PsiPhi uses a fractional step (projection) method to enforce the incompressibility constraint. The algorithm proceeds as follows:
 
@@ -109,6 +148,12 @@ The velocity is corrected to satisfy continuity:
     u_i^{n+1} = u_i^* - \frac{\Delta t}{\rho}\frac{\partial p^{n+1}}{\partial x_i}
     \label{eq:corrector}
 \end{equation}
+
+\paragraph{Why This Works}
+
+The key insight is that any vector field can be decomposed into a divergence-free (solenoidal) part and a curl-free (irrotational) part---the Helmholtz decomposition. The intermediate velocity $\mathbf{u}^*$ contains both components. The pressure gradient $\nabla p$ is curl-free by definition. By subtracting the right pressure gradient from $\mathbf{u}^*$, we remove exactly the curl-free component that violates continuity, leaving only the divergence-free part.
+
+The Poisson equation for pressure (Eq.~\ref{eq:pressure_poisson}) is derived by taking the divergence of the corrector step and requiring $\nabla \cdot \mathbf{u}^{n+1} = 0$. This elegant mathematical structure ensures that the algorithm maintains mass conservation to machine precision.
 
 \subsection{Poisson Solver}
 

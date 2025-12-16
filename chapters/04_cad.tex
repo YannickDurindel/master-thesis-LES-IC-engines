@@ -1,0 +1,213 @@
+This chapter presents the CAD model development for the optical engine used in this study. The engine geometry is based on the University of Duisburg-Essen optical research engine, a facility designed to provide optical access for laser-based diagnostics while maintaining realistic engine operating conditions.
+
+\section{The Optical Engine Facility}
+
+\subsection{Overview}
+
+The optical engine at the University of Duisburg-Essen is a single-cylinder research engine specifically designed for fundamental studies of in-cylinder flow and combustion processes. The transparent components allow researchers to apply advanced laser-based measurement techniques such as Particle Image Velocimetry (PIV) and Laser-Induced Fluorescence (LIF) to study the flow field and species distributions within the combustion chamber.
+
+\subsection{Engine Specifications}
+
+The key specifications of the optical engine are summarized in Table~\ref{tab:engine_specs}.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Specifications of the University of Duisburg-Essen optical engine.}
+    \label{tab:engine_specs}
+    \begin{tabular}{ll}
+        \toprule
+        \textbf{Parameter} & \textbf{Value} \\
+        \midrule
+        Engine type & Single-cylinder, four-stroke \\
+        Bore & 86 mm \\
+        Stroke & 86 mm \\
+        Connecting rod length & 148 mm \\
+        Compression ratio & Variable (8--12:1) \\
+        Valve configuration & 4-valve pentroof \\
+        Intake valve diameter & 30 mm \\
+        Exhaust valve diameter & 26 mm \\
+        Maximum speed & 2000 rpm \\
+        Optical access & Piston crown, cylinder liner \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Optical Access Features}
+
+The engine provides optical access through several transparent components:
+
+\begin{itemize}
+    \item \textbf{Extended piston with quartz window:} A Bowditch-type extended piston design allows a mirror to be placed below the piston, enabling through-piston imaging of the combustion chamber from below. The piston crown contains a large quartz window.
+
+    \item \textbf{Quartz cylinder liner:} A section of the cylinder liner is made from fused quartz, providing lateral optical access. This enables side-view imaging and laser sheet illumination for PIV measurements.
+
+    \item \textbf{Pentroof window:} Small windows in the pentroof provide additional access angles for laser diagnostics.
+\end{itemize}
+
+These optical access features impose constraints on the engine design---the quartz components have different thermal properties than metal, and the extended piston increases the effective crank-slider mechanism length. However, the geometric similarity to production engines is maintained as closely as possible.
+
+\section{CAD Model Development}
+
+\subsection{Approach}
+
+The CAD model for the optical engine was developed with several objectives:
+\begin{enumerate}
+    \item Accurately represent the combustion chamber geometry at all crank angles
+    \item Provide a suitable description for the immersed boundary method
+    \item Enable efficient mesh generation for both DNS and LES simulations
+    \item Support validation against PIV measurements from the optical engine
+\end{enumerate}
+
+The model was created using engineering drawings and specifications from the optical engine facility. Key geometric features were measured and verified against the physical engine.
+
+\subsection{Geometry Components}
+
+The complete engine geometry includes the following components:
+
+\subsubsection{Cylinder Head}
+
+The cylinder head features a pentroof design typical of modern four-valve gasoline engines. The pentroof angle and roof shape strongly influence the tumble generation during the intake stroke. Key features include:
+\begin{itemize}
+    \item Pentroof angle: 15 degrees from horizontal
+    \item Spark plug recess in the center of the roof
+    \item Intake and exhaust valve seats
+    \item Intake and exhaust port geometry (simplified)
+\end{itemize}
+
+\subsubsection{Piston}
+
+The piston geometry includes:
+\begin{itemize}
+    \item Flat piston crown (as used in the optical engine)
+    \item Valve relief cutouts to avoid valve-piston contact at high lift
+    \item Piston ring land geometry (for near-wall studies)
+\end{itemize}
+
+The piston motion follows the standard crank-slider kinematics:
+\begin{equation}
+    x_p(\theta) = r\cos\theta + \sqrt{l^2 - r^2\sin^2\theta}
+    \label{eq:piston_position}
+\end{equation}
+where $x_p$ is the piston position from the crankshaft center, $r$ is the crank radius (half of the stroke), $l$ is the connecting rod length, and $\theta$ is the crank angle.
+
+\subsubsection{Valves}
+
+The four-valve configuration includes:
+\begin{itemize}
+    \item Two intake valves (30 mm diameter)
+    \item Two exhaust valves (26 mm diameter)
+    \item Valve lift profiles as a function of crank angle
+    \item Valve seat geometry for accurate port-cylinder interface
+\end{itemize}
+
+\subsection{STL Export for Immersed Boundary Method}
+
+The CAD geometry is exported in STL (stereolithography) format for use with the immersed boundary method in PsiPhi. The STL format represents surfaces as a collection of triangular facets, each defined by three vertices and a normal vector.
+
+\paragraph{Mesh Quality Considerations}
+
+The quality of the STL mesh affects the accuracy of the immersed boundary representation:
+\begin{itemize}
+    \item \textbf{Resolution:} The triangular facets must be fine enough to resolve the surface curvature. A facet size of approximately 0.5 mm was used for curved surfaces.
+
+    \item \textbf{Watertight mesh:} The surface must be closed (watertight) for the signed distance function to be computed correctly. All gaps and overlaps in the CAD model were repaired before export.
+
+    \item \textbf{Normal orientation:} All triangle normals must point outward from the solid region. Inconsistent normals cause errors in the inside/outside classification.
+\end{itemize}
+
+\section{Simplified Channel Configuration}
+
+Before applying the wall treatment to the full engine geometry, validation studies are performed in a simplified channel flow configuration. This section describes the channel geometry used for model development and verification.
+
+\subsection{Channel Domain}
+
+The channel flow domain is a rectangular box with:
+\begin{itemize}
+    \item Streamwise length: $L_x = 2\pi\delta$ (where $\delta$ is the channel half-height)
+    \item Wall-normal extent: $L_y = 2\delta$
+    \item Spanwise width: $L_z = \pi\delta$
+\end{itemize}
+
+This domain size is standard for channel flow DNS and LES, providing sufficient length for the largest turbulent structures to develop while remaining computationally tractable.
+
+\subsection{Boundary Conditions}
+
+The channel flow uses:
+\begin{itemize}
+    \item \textbf{Walls:} No-slip condition at $y = 0$ and $y = 2\delta$
+    \item \textbf{Streamwise:} Periodic boundary conditions
+    \item \textbf{Spanwise:} Periodic boundary conditions
+    \item \textbf{Flow driving:} Constant pressure gradient to maintain target $Re_\tau$
+\end{itemize}
+
+\subsection{Grid Generation}
+
+The Cartesian grid for the channel is straightforward:
+\begin{itemize}
+    \item Uniform spacing in streamwise and spanwise directions
+    \item Option for stretching in the wall-normal direction to cluster points near the walls
+    \item DNS grid: Typically $128 \times 128 \times 128$ or finer for $Re_\tau = 395$
+    \item LES grid: $64 \times 64 \times 64$ or coarser, depending on wall treatment
+\end{itemize}
+
+The channel configuration serves as the primary validation case for the enhanced viscosity wall treatment. The simple geometry eliminates uncertainties related to complex boundaries, allowing a focused assessment of the wall model performance.
+
+\section{Engine Mesh Generation}
+
+\subsection{Challenges}
+
+Mesh generation for the optical engine presents several challenges:
+
+\begin{enumerate}
+    \item \textbf{Moving boundaries:} The piston and valves move throughout the engine cycle, requiring either moving/deforming meshes or an immersed boundary approach.
+
+    \item \textbf{Complex geometry:} The pentroof shape, valve seats, and piston cutouts create regions of high geometric complexity.
+
+    \item \textbf{Varying clearances:} At top dead center (TDC), the clearance between piston and head can be less than 1 mm, requiring fine resolution.
+
+    \item \textbf{Scale range:} The bore (86 mm) and smallest features (valve gaps) differ by two orders of magnitude.
+\end{enumerate}
+
+\subsection{Immersed Boundary Approach}
+
+The immersed boundary method in PsiPhi addresses these challenges by using a fixed Cartesian background grid with the engine geometry represented through the signed distance function.
+
+\paragraph{Advantages for Engine Simulation}
+
+\begin{itemize}
+    \item \textbf{No remeshing:} The background grid remains fixed while the geometry (represented by the signed distance function) moves through it.
+
+    \item \textbf{Simple parallelization:} The structured Cartesian grid enables efficient domain decomposition and load balancing.
+
+    \item \textbf{Consistent wall treatment:} The enhanced viscosity wall model is applied uniformly to all immersed surfaces---piston, head, and liner---without special treatment at different boundary types.
+
+    \item \textbf{Automated distance computation:} The signed distance function is computed from the STL geometry at each time step, automatically handling the moving piston and valves.
+\end{itemize}
+
+\subsection{Grid Resolution}
+
+For the engine simulations, the Cartesian grid resolution is chosen to balance computational cost with accuracy requirements:
+
+\begin{itemize}
+    \item \textbf{Base grid:} 256 cells across the bore diameter (cell size $\approx$ 0.34 mm)
+    \item \textbf{Wall-normal resolution:} With the enhanced viscosity wall model, the first cell can be placed at $y^+ \approx 10$--30, relaxing the stringent requirements of wall-resolved LES
+    \item \textbf{Total cell count:} Approximately 16 million cells for a full engine simulation
+\end{itemize}
+
+These grid requirements are feasible with current high-performance computing resources and allow multiple engine cycles to be simulated for statistical analysis.
+
+\section{Summary}
+
+This chapter has presented the CAD model development for the optical engine simulation:
+
+\begin{itemize}
+    \item The University of Duisburg-Essen optical engine provides a well-characterized research platform with extensive experimental data for validation.
+
+    \item The CAD model accurately represents the combustion chamber geometry and is exported in STL format for the immersed boundary method.
+
+    \item A simplified channel configuration is used for initial validation of the wall treatment before application to the full engine.
+
+    \item The immersed boundary approach in PsiPhi enables efficient simulation of the moving engine geometry on a fixed Cartesian grid.
+\end{itemize}
+
+The next chapter presents the validation results from channel flow simulations, comparing the enhanced viscosity wall treatment against DNS data and analytical profiles.

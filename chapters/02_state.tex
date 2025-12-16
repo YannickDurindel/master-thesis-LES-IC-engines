@@ -33,6 +33,14 @@ For a Newtonian fluid, the viscous stress tensor is related to the strain rate t
 \end{equation}
 where $\mu$ is the dynamic viscosity and $\mathbf{I}$ is the identity tensor.
 
+\paragraph{Physical Interpretation of the Conservation Laws}
+
+These conservation equations form the foundation of all fluid dynamics simulations, but their physical meaning deserves careful consideration. The continuity equation (Eq.~\ref{eq:continuity}) expresses a fundamental principle: fluid cannot simply appear or disappear. In an engine cylinder, this means that any gas entering through the intake valve must either remain in the cylinder or exit through the exhaust---there are no other options. For incompressible flows (Eq.~\ref{eq:continuity_incomp}), this constraint becomes even simpler: the velocity field must be divergence-free, meaning that fluid cannot accumulate or deplete at any point.
+
+The momentum equation (Eq.~\ref{eq:momentum}) is essentially Newton's second law applied to a fluid. The left-hand side represents the rate of change of momentum, while the right-hand side accounts for all forces: pressure gradients that push fluid from high to low pressure regions, viscous stresses that resist deformation, and body forces like gravity. In engine flows, the pressure gradient term dominates during compression and expansion strokes, while viscous effects become critical near walls where the no-slip condition must be satisfied.
+
+The stress tensor (Eq.~\ref{eq:stress_tensor}) deserves special attention for wall-bounded flows. Near a solid surface, velocity gradients become large as the flow transitions from zero velocity at the wall to the bulk flow velocity. These gradients, when multiplied by viscosity, produce the wall shear stress that directly affects fuel-air mixing and heat transfer in engines. Understanding and accurately predicting this wall shear stress is central to the work presented in this thesis.
+
 \subsection{Conservation of Energy}
 
 The first law of thermodynamics, applied to a fluid element, gives the energy equation:
@@ -41,6 +49,15 @@ The first law of thermodynamics, applied to a fluid element, gives the energy eq
     \label{eq:energy}
 \end{equation}
 where $E$ is the total energy per unit mass, $\kappa$ is the thermal conductivity, and $T$ is the temperature.
+
+In engine simulations, the energy equation is crucial for predicting wall heat transfer. The thermal boundary layer---the thin region near the wall where temperature transitions from the hot combustion gases to the cooler wall---behaves similarly to the velocity boundary layer. During combustion, peak heat fluxes can reach 1~MW/m$^2$ at the piston surface, making accurate prediction of near-wall thermal transport essential for engine efficiency and durability analysis.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/control_volume.pdf}
+    \caption{Control volume representation showing surface fluxes. The integral conservation laws are applied to such a finite volume, with fluxes crossing each face. This forms the basis of the finite volume discretization used in PsiPhi.}
+    \label{fig:control_volume}
+\end{figure}
 
 \section{The Navier-Stokes Equations}
 
@@ -103,6 +120,19 @@ Substituting the Reynolds decomposition into the Navier-Stokes equations and tim
 
 The term $\overline{u_i' u_j'}$ represents the Reynolds stress tensor, which arises from the nonlinear convective term and requires modeling. This is known as the closure problem of turbulence.
 
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/reynolds_decomposition.pdf}
+    \caption{Reynolds decomposition of a turbulent velocity signal. The instantaneous velocity $U(t)$ is split into a time-averaged mean $\bar{U}$ and a fluctuating component $u'(t)$. The fluctuations are responsible for enhanced mixing and transport in turbulent flows, but they also introduce the closure problem that necessitates turbulence modeling.}
+    \label{fig:reynolds_decomposition}
+\end{figure}
+
+\paragraph{Physical Meaning of Reynolds Stresses}
+
+The Reynolds stress term $\overline{u_i' u_j'}$ deserves careful interpretation. Although it appears as a stress in the averaged equations, it actually represents turbulent momentum transport. Consider two fluid parcels passing a point at different instants: if a parcel moving faster than average ($u' > 0$) also tends to be moving away from the wall ($v' > 0$), then on average there is a net transport of high-momentum fluid away from regions of high momentum. This correlation between fluctuating velocities is the physical mechanism behind turbulent mixing---it is far more effective than molecular diffusion alone.
+
+In engines, turbulent mixing is essential for preparing a homogeneous fuel-air mixture before ignition. The Reynolds stresses quantify this mixing intensity and must either be resolved directly (in DNS or LES) or modeled (in RANS) to predict engine performance accurately.
+
 \subsection{Energy Cascade}
 
 Richardson's concept of the energy cascade describes how energy is transferred from large to small scales in turbulent flows. Large eddies, containing most of the kinetic energy, are unstable and break down into smaller eddies. This process continues until the eddies become small enough that viscous forces dissipate their energy as heat.
@@ -114,6 +144,19 @@ Kolmogorov's theory provides scaling laws for the smallest scales of turbulence.
     u_\eta &= (\nu \varepsilon)^{1/4} \label{eq:kolmogorov_vel}
 \end{align}
 where $\varepsilon$ is the turbulent dissipation rate.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/energy_cascade.pdf}
+    \caption{The energy cascade in turbulent flows. Energy enters at the largest scales through instabilities and mean flow gradients, then cascades through the inertial subrange where energy is transferred without significant dissipation. Finally, at the Kolmogorov scale $\eta$, viscous forces convert kinetic energy into heat. The ratio between the largest and smallest scales increases with Reynolds number, making high-$Re$ flows computationally challenging.}
+    \label{fig:energy_cascade}
+\end{figure}
+
+\paragraph{Implications for Engine Simulations}
+
+The energy cascade has profound implications for engine simulations. In a typical engine at operating conditions, the Reynolds number based on bore and piston speed can exceed $10^5$, meaning the ratio between the largest eddies (comparable to the bore) and the smallest eddies (the Kolmogorov scale) can be several thousand. To resolve all these scales in a DNS would require a grid with billions of points and time steps small enough to capture the fastest fluctuations---a computational cost that is impractical for engineering applications.
+
+This scale separation motivates the use of turbulence modeling. Rather than resolving every eddy, we can model the effect of unresolved scales on the resolved flow. The key insight from Kolmogorov's theory is that the small scales tend to be universal---they behave similarly regardless of the large-scale geometry. This universality is what makes turbulence modeling feasible: we need not know the exact details of every small eddy, only their statistical effect on the larger flow structures.
 
 \section{Turbulence Modeling Approaches}
 
@@ -148,11 +191,30 @@ LES represents a compromise between DNS and RANS. Large, energy-containing eddie
     \item Modeling small scales introduces less error than modeling all scales
 \end{itemize}
 
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/dns_rans_les_comparison.pdf}
+    \caption{Comparison of DNS, LES, and RANS approaches for representing turbulent flow fields. DNS resolves all scales down to the Kolmogorov length, capturing every detail of the turbulent structures. LES resolves large-scale motions while modeling the effect of smaller scales. RANS captures only the time-averaged flow field, modeling all turbulent fluctuations through the Reynolds stress tensor.}
+    \label{fig:dns_rans_les}
+\end{figure}
+
+\paragraph{Why LES for Engine Simulations?}
+
+For internal combustion engine simulations, LES offers a compelling middle ground. The large-scale flow structures in engines---tumble, swirl, and squish motions---are highly geometry-dependent and vary from cycle to cycle. RANS, which predicts only the mean flow, cannot capture these cycle-to-cycle variations that significantly affect combustion variability. On the other hand, DNS remains computationally prohibitive for the high Reynolds numbers encountered in engines.
+
+LES resolves the large, energy-containing eddies that dominate mixing and combustion processes while modeling the smaller, more universal scales. This allows LES to capture the unsteady, three-dimensional nature of engine flows at a computational cost that, while substantial, is achievable with modern high-performance computing resources. The challenge, particularly near walls, is ensuring that the subgrid-scale model accurately represents the unresolved physics---a challenge that motivates the enhanced viscosity approach developed in this work.
+
 \section{Large Eddy Simulation}
+
+The fundamental idea behind LES is elegant: rather than trying to resolve or model \emph{all} turbulent scales, we resolve the large scales that are most important for engineering predictions and model only the small scales whose behavior is more universal. This section develops the mathematical framework for LES, starting with the filtering operation that separates resolved from modeled scales.
 
 \subsection{Spatial Filtering}
 
-In LES, the flow variables are decomposed using a spatial filter rather than time averaging. For a variable $\phi$, the filtered quantity $\tilde{\phi}$ is defined as:
+\paragraph{The Filtering Concept: An Analogy}
+
+Spatial filtering in LES can be understood through a simple analogy: imagine viewing a turbulent flow through a camera with limited resolution. The camera captures the large-scale features---the swirling vortices and bulk flow patterns---but blurs out the fine details smaller than a pixel. The filtered equations of LES describe what this ``blurred'' flow field does, while the subgrid-scale model accounts for the effect of the missing fine details.
+
+Mathematically, we apply a low-pass filter to the Navier-Stokes equations. Large scales (wavelengths larger than the filter width) pass through unchanged, while small scales are removed and must be modeled. In LES, the flow variables are decomposed using a spatial filter rather than time averaging. For a variable $\phi$, the filtered quantity $\tilde{\phi}$ is defined as:
 \begin{equation}
     \tilde{\phi}(\mathbf{x},t) = \int_\Omega G(\mathbf{x}-\mathbf{x}', \Delta) \phi(\mathbf{x}',t) d\mathbf{x}'
     \label{eq:filter}
@@ -228,7 +290,14 @@ where $S_{ij}^d$ is the traceless symmetric part of the square of the velocity g
 
 \section{Wall Treatment in LES}
 
-The near-wall region presents particular challenges for LES due to the small turbulent scales that develop close to solid boundaries.
+The near-wall region presents particular challenges for LES due to the small turbulent scales that develop close to solid boundaries. This section explains the physics of wall-bounded turbulence, why it is difficult to simulate, and the various approaches used to handle near-wall flows---culminating in the enhanced viscosity approach that forms the core of this thesis.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/wall_layer_structure.pdf}
+    \caption{Structure of the turbulent boundary layer near a wall. Three distinct regions can be identified: the viscous sublayer ($y^+ < 5$) where viscous forces dominate and velocity varies linearly with distance; the buffer layer ($5 < y^+ < 30$) where both viscous and turbulent stresses are significant; and the logarithmic layer ($y^+ > 30$) where turbulent mixing dominates and velocity follows a logarithmic profile. The outer layer connects to the bulk flow.}
+    \label{fig:wall_layers}
+\end{figure}
 
 \subsection{Wall-Resolved LES}
 
@@ -257,6 +326,24 @@ The mean velocity profile near a smooth wall follows distinct regions:
 \end{itemize}
 where $\kappa \approx 0.41$ is the von Kármán constant and $B \approx 5.2$ for smooth walls.
 
+\subsubsection{Why Classical Wall Functions Fail in Engines}
+
+Classical wall functions, derived from equilibrium boundary layer theory, assume that the flow near the wall is in local equilibrium---the production and dissipation of turbulent kinetic energy are balanced, and the boundary layer has had sufficient time to develop its characteristic structure. These assumptions break down in engine flows for several reasons:
+
+\begin{enumerate}
+    \item \textbf{Rapid pressure changes:} During compression and expansion, the pressure changes by orders of magnitude over milliseconds. The boundary layer cannot reach equilibrium on such short timescales.
+
+    \item \textbf{Flow reversal and separation:} Near top dead center, the piston decelerates and reverses direction. The boundary layer on the piston surface experiences rapid changes in the wall shear stress, including possible flow reversal and reattachment.
+
+    \item \textbf{Non-zero pressure gradients:} The standard law of the wall assumes zero streamwise pressure gradient. In engines, strong favorable and adverse pressure gradients are the norm, significantly altering the boundary layer profile.
+
+    \item \textbf{Large-scale flow structures:} Tumble and swirl motions impose time-varying external conditions on the boundary layer that vary spatially across the combustion chamber surfaces.
+
+    \item \textbf{History effects:} The boundary layer at any instant depends on its entire history during the engine cycle, not just the instantaneous conditions. Equilibrium-based wall functions have no mechanism to account for this memory.
+\end{enumerate}
+
+These limitations motivate the development of wall treatments that do not rely on equilibrium assumptions---such as the enhanced viscosity approach explored in this work.
+
 \subsubsection{Enhanced Viscosity Approach}
 
 One approach to wall modeling involves increasing the effective viscosity near the wall to account for unresolved turbulent transport. The total viscosity becomes:
@@ -266,13 +353,40 @@ One approach to wall modeling involves increasing the effective viscosity near t
 \end{equation}
 where $\nu_t^{wall}$ is a modeled turbulent viscosity that captures the effect of unresolved near-wall eddies. This approach allows coarser grids near walls while maintaining the correct wall shear stress.
 
+\paragraph{Physical Mechanism of Enhanced Viscosity}
+
+The enhanced viscosity approach can be understood through a physical lens. Near a wall, the turbulent eddies that would normally transport momentum are suppressed by the wall's presence---they are ``squashed'' and cannot extend beyond the wall. On a coarse LES grid that does not resolve these near-wall eddies, their momentum transport effect is missing.
+
+By locally increasing the viscosity, we are effectively saying: ``The unresolved turbulent fluctuations would have mixed momentum across this region. Since we cannot resolve them, we will increase the diffusion coefficient (viscosity) so that the resolved equations produce the correct net momentum transport.'' This is analogous to how eddy viscosity models work in general, but specifically tuned for the near-wall region where the turbulence structure is known from boundary layer theory.
+
+The advantage of this approach for engine simulations is that it does not assume equilibrium---the enhanced viscosity simply provides additional diffusion that mimics unresolved turbulent transport, regardless of whether the flow is accelerating, decelerating, or experiencing pressure gradients.
+
 \section{Channel Flow}
 
-The plane channel flow serves as a canonical test case for wall-bounded turbulence studies due to its geometric simplicity and well-documented behavior.
+The plane channel flow serves as a canonical test case for wall-bounded turbulence studies due to its geometric simplicity and well-documented behavior. Before attempting to simulate the complex, transient flows in an engine, it is essential to validate the wall treatment approach in a controlled environment where analytical and high-fidelity DNS data are available for comparison.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/channel_flow_schematic.pdf}
+    \caption{Plane channel flow configuration. The flow is driven by a pressure gradient between two parallel plates separated by distance $2\delta$. Periodic boundary conditions are applied in the streamwise direction, and the flow is statistically homogeneous in both streamwise and spanwise directions. The mean velocity profile $U(y)$ develops a characteristic turbulent shape with thin boundary layers near each wall.}
+    \label{fig:channel_flow}
+\end{figure}
 
 \subsection{Configuration}
 
-The flow is driven by a pressure gradient between two parallel infinite plates separated by a distance $2h$. The flow is statistically steady and homogeneous in the streamwise ($x$) and spanwise ($z$) directions.
+The flow is driven by a pressure gradient between two parallel infinite plates separated by a distance $2h$ (or $2\delta$, using the half-channel height as the reference length). The flow is statistically steady and homogeneous in the streamwise ($x$) and spanwise ($z$) directions. This homogeneity allows averaging over these directions to obtain smooth statistical profiles with relatively short simulation times.
+
+\paragraph{Why Channel Flow for Validation?}
+
+Channel flow offers several advantages for validating wall models:
+\begin{itemize}
+    \item \textbf{Simple geometry:} The flat parallel walls eliminate geometric complexity, isolating the wall treatment behavior.
+    \item \textbf{Well-known physics:} Decades of experimental and DNS studies have established accurate reference data.
+    \item \textbf{Statistical convergence:} Spatial averaging in homogeneous directions accelerates convergence of turbulent statistics.
+    \item \textbf{Controlled conditions:} The steady-state, equilibrium nature allows direct comparison with law-of-the-wall predictions.
+\end{itemize}
+
+By validating the enhanced viscosity wall model first in channel flow, we establish confidence in its behavior before applying it to the more challenging engine environment.
 
 \subsection{Friction Reynolds Number}
 
@@ -305,6 +419,13 @@ These statistics, when obtained from DNS, serve as reference data for validating
 \section{Immersed Boundary Methods}
 
 Immersed boundary methods provide an alternative to body-fitted grids for simulating flows around complex geometries. The solid boundaries are represented on a fixed Cartesian grid, which simplifies grid generation and enables efficient handling of moving boundaries.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/immersed_boundary_schematic.pdf}
+    \caption{Immersed boundary method concept. A curved solid surface is represented on a fixed Cartesian grid. Cells are classified as fluid cells (where the Navier-Stokes equations are solved normally), solid cells (inside the body), or cut cells (intersected by the boundary). Special treatment is applied at cut cells to enforce the boundary conditions.}
+    \label{fig:ibm_schematic}
+\end{figure}
 
 \subsection{Concept and Motivation}
 
@@ -355,11 +476,18 @@ The enhanced viscosity approach is particularly compatible with immersed boundar
 
 \section{Internal Combustion Engine Flows}
 
-The flow within an internal combustion engine exhibits unique characteristics that distinguish it from canonical turbulent flows.
+The flow within an internal combustion engine exhibits unique characteristics that distinguish it from canonical turbulent flows. Understanding these characteristics is essential for developing appropriate simulation strategies and wall treatments.
 
 \subsection{Engine Cycle and Flow Phases}
 
-A four-stroke engine cycle comprises distinct phases with different flow characteristics:
+A four-stroke engine cycle comprises distinct phases with different flow characteristics. Figure~\ref{fig:four_stroke} illustrates the four strokes and their associated flow patterns.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/four_stroke_cycle.pdf}
+    \caption{The four strokes of an internal combustion engine cycle. During intake, fresh charge enters through the open intake valve, generating large-scale vortical structures. Compression increases pressure and temperature while modifying the flow structures. The power stroke follows combustion, with expansion driving the piston. Finally, exhaust gases are expelled through the open exhaust valve.}
+    \label{fig:four_stroke}
+\end{figure}
 
 \subsubsection{Intake Stroke}
 
@@ -379,7 +507,14 @@ The piston moves upward to expel the combustion products through the exhaust val
 
 \subsection{Large-Scale Flow Structures}
 
-Engine designers use intake port geometry to generate organized large-scale motions that enhance mixing and combustion:
+Engine designers use intake port geometry to generate organized large-scale motions that enhance mixing and combustion. These structures, illustrated in Figure~\ref{fig:tumble_swirl_squish}, play a crucial role in determining combustion efficiency and emissions.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/tumble_swirl_squish.pdf}
+    \caption{Large-scale organized flow motions in internal combustion engines. \textbf{Tumble} is rotation about a horizontal axis perpendicular to the cylinder axis, generated by directing intake flow toward one side of the chamber. \textbf{Swirl} is rotation about the cylinder axis, created by tangential intake flow. \textbf{Squish} is the radial flow generated when the piston approaches the cylinder head during compression.}
+    \label{fig:tumble_swirl_squish}
+\end{figure}
 
 \subsubsection{Tumble}
 

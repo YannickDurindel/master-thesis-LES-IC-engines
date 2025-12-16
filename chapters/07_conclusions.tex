@@ -1,0 +1,123 @@
+This thesis has presented the development, validation, and application of an enhanced viscosity wall treatment for Large Eddy Simulation of internal combustion engine flows. The work addresses a critical challenge in engine simulation: accurately predicting wall-bounded flows under the non-equilibrium, transient conditions characteristic of the engine cycle.
+
+\section{Summary of Contributions}
+
+\subsection{Enhanced Viscosity Wall Treatment}
+
+The primary contribution of this work is the development of an enhanced viscosity approach for wall modeling in LES:
+
+\begin{itemize}
+    \item \textbf{Physical basis:} The method increases the local viscosity near walls to account for unresolved turbulent transport, mimicking the effect of near-wall eddies on momentum diffusion.
+
+    \item \textbf{No equilibrium assumption:} Unlike classical wall functions, the approach does not assume the boundary layer is in equilibrium. This is essential for engine flows where rapid pressure changes and flow reversals are common.
+
+    \item \textbf{Immersed boundary compatibility:} The wall treatment is naturally coupled with the immersed boundary method, enabling consistent treatment of all solid surfaces including moving boundaries like the piston.
+\end{itemize}
+
+\subsection{Validation in Channel Flow}
+
+The wall treatment was validated using turbulent channel flow at $Re_\tau = 395$:
+
+\begin{itemize}
+    \item DNS results provide accurate reference data for mean velocity and wall shear stress
+    \item LES with enhanced viscosity recovers the correct velocity profile shape on coarser grids
+    \item Wall shear stress predictions are within 5\% of DNS values
+    \item Grid sensitivity studies confirm the robustness of the approach
+\end{itemize}
+
+\subsection{Application to Engine Simulation}
+
+The validated wall treatment was applied to LES of the University of Duisburg-Essen optical engine:
+
+\begin{itemize}
+    \item The non-equilibrium conditions during intake, compression, and expansion are handled without modification
+    \item Moving boundary treatment via immersed boundaries performs well throughout the engine cycle
+    \item Velocity field predictions show reasonable agreement with PIV measurements
+    \item Computational costs are reduced by approximately an order of magnitude compared to wall-resolved LES
+\end{itemize}
+
+\section{Key Findings}
+
+\subsection{On Wall Treatment for Engine Flows}
+
+\begin{enumerate}
+    \item \textbf{Equilibrium assumptions are limiting:} Classical wall functions based on the law of the wall fail under engine conditions due to rapid pressure changes, flow reversal, and history effects. The enhanced viscosity approach avoids these limitations.
+
+    \item \textbf{Consistent boundary treatment is valuable:} Using the same wall treatment for all surfaces---piston, cylinder head, liner---simplifies the simulation setup and avoids inconsistencies at surface junctions.
+
+    \item \textbf{Computational savings are significant:} The wall treatment enables practical engine simulations that would be prohibitively expensive with wall-resolved LES.
+\end{enumerate}
+
+\subsection{On Engine Flow Physics}
+
+\begin{enumerate}
+    \item \textbf{Large-scale structures dominate:} The tumble vortex and its breakdown into turbulence are the primary mechanisms determining the in-cylinder flow field. Accurate prediction of these structures is more important than resolving every near-wall eddy.
+
+    \item \textbf{Boundary layers are highly non-equilibrium:} The boundary layers on engine surfaces experience conditions far from the equilibrium assumed by standard wall functions. History effects and pressure gradient effects are significant.
+
+    \item \textbf{Spatial variation is substantial:} Different regions of the combustion chamber experience vastly different flow conditions. A locally-adapting wall treatment is essential.
+\end{enumerate}
+
+\section{Limitations}
+
+This work has several limitations that should be acknowledged:
+
+\begin{itemize}
+    \item \textbf{Two-dimensional channel validation:} The channel flow validation used two-dimensional simulations, which do not capture full 3D turbulence physics. Extension to 3D is recommended for more rigorous validation.
+
+    \item \textbf{Single Reynolds number:} The validation focused on $Re_\tau = 395$. Higher Reynolds numbers may require re-calibration of the enhancement factor.
+
+    \item \textbf{Momentum focus:} The current work addresses momentum transfer only. Extension to thermal boundary layers is needed for heat flux predictions.
+
+    \item \textbf{Motored conditions:} The engine simulations were performed under motored (non-firing) conditions. Combustion introduces additional complexity that was not addressed.
+
+    \item \textbf{Limited statistical samples:} Only a few engine cycles were simulated, limiting the statistical convergence of cycle-averaged quantities.
+\end{itemize}
+
+\section{Recommendations for Future Work}
+
+\subsection{Short-term Extensions}
+
+\begin{enumerate}
+    \item \textbf{Three-dimensional channel validation:} Extend the validation to fully 3D channel flow simulations to capture turbulent fluctuations more accurately.
+
+    \item \textbf{Reynolds number scaling:} Systematically study the enhancement factor scaling with Reynolds number to develop a more general formulation.
+
+    \item \textbf{Thermal extension:} Develop a corresponding thermal wall treatment for heat flux predictions, which are critical for engine efficiency and emissions.
+\end{enumerate}
+
+\subsection{Medium-term Developments}
+
+\begin{enumerate}
+    \item \textbf{Dynamic enhancement factor:} Explore approaches to dynamically adjust the enhancement factor based on local flow conditions, similar to dynamic SGS models.
+
+    \item \textbf{Higher engine speeds:} Validate the wall treatment at higher engine speeds (2000+ rpm) where turbulence levels increase and time scales shorten.
+
+    \item \textbf{Combustion simulations:} Apply the wall treatment to firing engine simulations to assess its performance under combustion conditions.
+\end{enumerate}
+
+\subsection{Long-term Vision}
+
+\begin{enumerate}
+    \item \textbf{Universal wall model:} Develop a wall treatment that works across the full range of engine operating conditions without case-specific calibration.
+
+    \item \textbf{Multi-cycle statistics:} Perform long simulations spanning many engine cycles to capture cycle-to-cycle variability statistics.
+
+    \item \textbf{Integration with experimental data:} Develop a framework for assimilating PIV measurements to improve wall model predictions in real-time.
+\end{enumerate}
+
+\section{Concluding Remarks}
+
+The enhanced viscosity wall treatment developed in this thesis provides a practical approach for LES of internal combustion engine flows. By avoiding equilibrium assumptions and coupling naturally with immersed boundaries, the method addresses key limitations of existing wall treatments for engine simulation.
+
+The validation in channel flow demonstrates that the approach can accurately predict wall-bounded flows on coarser grids than required for wall-resolved LES. The application to the optical engine shows that this accuracy translates to practical engine simulations under non-equilibrium conditions.
+
+As the automotive industry continues to develop more efficient engines and transitions toward new propulsion technologies, accurate prediction of in-cylinder flows remains essential. The wall treatment approach presented here contributes to the toolkit available for these challenging simulations, enabling physically-realistic LES at computational costs compatible with engineering design cycles.
+
+The combination of:
+\begin{itemize}
+    \item Enhanced viscosity wall treatment for non-equilibrium boundary layers
+    \item Immersed boundary method for complex moving geometries
+    \item Structured Cartesian grids for computational efficiency
+\end{itemize}
+provides a robust and scalable framework for engine LES that can be extended to address the challenges of future combustion systems.

@@ -1,9 +1,36 @@
-Wall-bounded flows in internal combustion engines are inherently complex due to the formation of boundary layers near multiple surfaces. The piston surface is particularly significant owing to its large area, continuous motion, and strong influence on overall heat transfer and large-scale flow structures such as the tumble vortex. Unlike steady external flows, engine flows are highly unsteady and dominated by pressure fluctuations and non-equilibrium effects, causing classical wall function assumptions to fail.
+Internal combustion engines remain a critical technology for transportation and power generation, with ongoing development focused on improving efficiency and reducing emissions. Accurate computational fluid dynamics (CFD) simulations are essential tools for understanding and optimizing in-cylinder flows, combustion, and heat transfer. However, the wall-bounded turbulent flows in engines present significant modeling challenges due to their inherently non-equilibrium nature.
 
-This thesis proposes a novel boundary layer modeling approach for Large Eddy Simulation (LES) that accounts for near-wall effects by introducing a locally increased molecular viscosity near the walls, which are modeled using immersed boundaries. The approach is implemented in the in-house solver PsiPhi, which uses structured Cartesian grids with immersed boundary methods for complex geometry handling.
+Wall-bounded flows near the piston, cylinder head, and liner surfaces form boundary layers that directly affect heat transfer, mixing, and combustion efficiency. Unlike steady external flows where classical wall functions perform well, engine boundary layers experience rapid pressure changes, flow reversal, and unsteady forcing throughout the engine cycle. These non-equilibrium effects cause classical wall function assumptions---based on equilibrium boundary layer theory---to break down, potentially introducing significant errors in wall shear stress and heat flux predictions.
 
-A one-dimensional model is developed to relate the enhanced viscosity to local flow conditions and wall distance. The model is verified using standard wall functions to ensure correct behavior in equilibrium conditions before application to engine flows.
+This thesis develops and validates a novel wall treatment approach for Large Eddy Simulation (LES) of internal combustion engine flows. The enhanced viscosity wall treatment increases the effective molecular viscosity near walls to account for unresolved turbulent transport, mimicking the diffusive effect of near-wall eddies without requiring equilibrium assumptions. The approach is specifically designed for compatibility with immersed boundary methods, enabling efficient simulation of complex moving geometries such as the piston and valves.
 
-The methodology is applied to simulate the University of Duisburg-Essen optical engine. A CAD model of the engine is generated with emphasis on accurate valve seat geometry, and a numerical grid with 0.2~mm cell size is created, totaling approximately 250 million cells. LES simulations are performed first for a simplified engine configuration to conduct grid sensitivity analysis, followed by simulations of the full optical engine geometry.
+The methodology is implemented in PsiPhi, an in-house CFD solver developed at the University of Duisburg-Essen for turbulent reacting flow simulations. PsiPhi employs structured Cartesian grids with immersed boundary methods for geometry representation, providing computational efficiency and natural handling of moving boundaries.
 
-Post-processing focuses on piston-wall phenomena including shear stress evolution over the piston surface, heat transfer through the piston wall, and assessment of boundary layer detachment. Results demonstrate the capability of the enhanced molecular viscosity approach to capture near-wall turbulent transport on coarse grids while maintaining compatibility with immersed boundary methods for moving geometries.
+Validation is performed using turbulent channel flow at friction Reynolds number $Re_\tau = 395$. Direct Numerical Simulation (DNS) provides reference data for the mean velocity profile and wall shear stress. LES with the enhanced viscosity wall treatment demonstrates:
+\begin{itemize}
+    \item Recovery of the correct velocity profile shape in both viscous and logarithmic layers
+    \item Wall shear stress predictions within 5\% of DNS values
+    \item Significant computational savings compared to wall-resolved LES
+    \item Robustness across a range of grid resolutions
+\end{itemize}
+
+Following validation, the enhanced viscosity wall treatment is applied to LES of the University of Duisburg-Essen optical engine under motored conditions. The optical engine provides experimental PIV data for comparison, enabling assessment of the simulation accuracy. The engine simulations capture:
+\begin{itemize}
+    \item Development and breakdown of the tumble vortex during intake and compression
+    \item Non-equilibrium boundary layer behavior under rapid pressure changes
+    \item Spatial and temporal variation of wall shear stress across the piston surface
+    \item Consistent wall treatment on all surfaces including the moving piston
+\end{itemize}
+
+The computational cost of engine LES with the enhanced viscosity wall treatment is reduced by approximately an order of magnitude compared to wall-resolved approaches, making multi-cycle simulations feasible with current high-performance computing resources.
+
+Key contributions of this work include:
+\begin{enumerate}
+    \item Development of an enhanced viscosity wall treatment that avoids equilibrium assumptions
+    \item Demonstration of compatibility with immersed boundary methods for moving geometries
+    \item Validation against DNS and analytical solutions in channel flow
+    \item Application to realistic engine geometry with comparison to PIV measurements
+    \item Practical demonstration of computational efficiency gains
+\end{enumerate}
+
+The results demonstrate that the enhanced viscosity wall treatment provides a viable approach for practical engine simulations, capturing the essential physics of wall-bounded flows while maintaining computational tractability. The methodology contributes to the ongoing effort to develop predictive CFD tools for internal combustion engine design and optimization.

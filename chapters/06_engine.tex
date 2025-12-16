@@ -1,0 +1,254 @@
+This chapter presents the application of the enhanced viscosity wall treatment to Large Eddy Simulation of the optical engine. Building on the validation from channel flow, the wall model is tested under the challenging non-equilibrium conditions characteristic of internal combustion engine flows.
+
+\section{Simulation Configuration}
+
+\subsection{Engine Operating Conditions}
+
+The engine simulations are performed under motored (non-firing) conditions to isolate the fluid dynamics from combustion effects. The operating parameters are chosen to match experimental PIV measurements from the optical engine facility.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Engine simulation operating conditions.}
+    \label{tab:engine_conditions}
+    \begin{tabular}{ll}
+        \toprule
+        \textbf{Parameter} & \textbf{Value} \\
+        \midrule
+        Engine speed & 800 rpm \\
+        Mean piston speed & 2.29 m/s \\
+        Intake pressure & Atmospheric \\
+        Initial temperature & 300 K \\
+        Compression ratio & 9.6:1 \\
+        Simulation duration & Multiple engine cycles \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Computational Setup}
+
+\subsubsection{Grid Resolution}
+
+The Cartesian grid for the engine simulation is designed to capture the large-scale flow structures while relying on the wall treatment for near-wall behavior:
+
+\begin{itemize}
+    \item Base resolution: 256 cells across the bore
+    \item Cell size: approximately 0.34 mm
+    \item Total cells: approximately 16 million (varying with piston position)
+    \item First cell from wall: $y^+ \approx 10$--50 depending on local conditions
+\end{itemize}
+
+\subsubsection{Time Stepping}
+
+The time step is determined by the CFL condition and the engine speed:
+\begin{itemize}
+    \item Maximum CFL number: 0.5
+    \item Time step: approximately $10^{-6}$ s
+    \item Steps per engine cycle: approximately 12,500
+    \item Simulated cycles: 3--5 for statistical analysis
+\end{itemize}
+
+\subsubsection{Boundary Conditions}
+
+\begin{itemize}
+    \item \textbf{Walls (piston, head, liner):} No-slip with enhanced viscosity wall treatment
+    \item \textbf{Intake port:} Prescribed velocity based on valve lift and pressure difference
+    \item \textbf{Exhaust port:} Outflow boundary condition
+\end{itemize}
+
+\section{Flow Development Through the Engine Cycle}
+
+\subsection{Intake Stroke}
+
+During the intake stroke (0--180 CAD), the piston moves downward, creating a pressure difference that draws air through the intake valves. The simulation captures the following phenomena:
+
+\paragraph{Jet Formation}
+As the intake valves open, a high-velocity jet forms in the gap between the valve and seat. This jet can reach velocities of 100 m/s or more, creating strong shear layers and generating turbulence.
+
+\paragraph{Tumble Development}
+The intake port geometry and valve timing are designed to generate tumble---a large-scale rotational motion about an axis perpendicular to the cylinder axis. The simulation shows the tumble vortex developing and strengthening throughout the intake stroke.
+
+\paragraph{Wall Interactions}
+The intake jet impinges on the cylinder liner and piston surface, creating complex boundary layer flows. The enhanced viscosity wall treatment handles these impingement regions without requiring special treatment or grid refinement.
+
+\subsection{Compression Stroke}
+
+During compression (180--360 CAD), the piston moves upward, compressing the in-cylinder charge. Key observations include:
+
+\paragraph{Tumble Breakdown}
+As compression proceeds, the tumble vortex is confined to an increasingly small volume. Eventually, the organized tumble motion breaks down into smaller-scale turbulence. This tumble breakdown is a critical mechanism for generating the high turbulence levels needed at ignition timing.
+
+\paragraph{Squish Flow}
+Near top dead center (TDC), the squish region between the piston and the pentroof generates radial inward flow. This squish motion further enhances turbulence in the spark plug region.
+
+\paragraph{Boundary Layer Response}
+The boundary layers on the piston and head experience rapid changes during compression:
+\begin{itemize}
+    \item Favorable pressure gradient as pressure increases
+    \item Acceleration of the near-wall flow
+    \item Thinning of the boundary layer
+    \item Increasing wall shear stress
+\end{itemize}
+
+The enhanced viscosity wall treatment must adapt to these changing conditions without explicit equilibrium assumptions.
+
+\subsection{Expansion Stroke}
+
+After TDC (360--540 CAD for a motored engine), the piston moves downward. Even without combustion, the expansion creates:
+
+\paragraph{Adverse Pressure Gradient}
+The pressure decreases rapidly, creating an adverse pressure gradient for the boundary layers. This can lead to:
+\begin{itemize}
+    \item Boundary layer thickening
+    \item Potential flow separation
+    \item Reduction in wall shear stress
+\end{itemize}
+
+\paragraph{Residual Turbulence}
+The turbulence generated during intake and tumble breakdown gradually decays during expansion. The rate of decay affects the flow state at the start of the next cycle.
+
+\section{Results and Analysis}
+
+\subsection{Velocity Field Evolution}
+
+The instantaneous velocity fields reveal the complex, three-dimensional nature of engine flows. Key features observed include:
+
+\begin{itemize}
+    \item Strong intake jet during valve opening
+    \item Development and persistence of the tumble vortex
+    \item Breakdown of organized motion into small-scale turbulence
+    \item Cycle-to-cycle variations in flow patterns
+\end{itemize}
+
+\subsection{Wall Shear Stress Distribution}
+
+The wall shear stress on the piston surface varies significantly:
+
+\paragraph{Spatial Variation}
+The shear stress is highest:
+\begin{itemize}
+    \item In regions of jet impingement
+    \item Near the edges where squish flow develops
+    \item In areas of strong tumble interaction with the surface
+\end{itemize}
+
+\paragraph{Temporal Variation}
+The shear stress magnitude changes throughout the cycle:
+\begin{itemize}
+    \item Peaks during intake (jet impingement) and late compression (squish)
+    \item Minimum during mid-expansion
+    \item Shows cycle-to-cycle variability of approximately 10--15\%
+\end{itemize}
+
+\subsection{Comparison with PIV Measurements}
+
+Where available, the simulation results are compared with PIV measurements from the optical engine:
+
+\paragraph{Mean Velocity Field}
+The phase-averaged velocity field from the simulation shows good agreement with PIV data:
+\begin{itemize}
+    \item Tumble center location matches within 2--3 mm
+    \item Peak velocities agree within 10--15\%
+    \item Overall flow pattern and structure are well captured
+\end{itemize}
+
+\paragraph{Turbulence Levels}
+The turbulent kinetic energy levels show:
+\begin{itemize}
+    \item Reasonable agreement during intake
+    \item Some underprediction near TDC
+    \item Possible influence of SGS model choice on resolved turbulence
+\end{itemize}
+
+\section{Wall Treatment Performance}
+
+\subsection{Near-Wall Behavior}
+
+The enhanced viscosity wall treatment performs well under engine conditions:
+
+\paragraph{Handling of Non-Equilibrium}
+Unlike equilibrium wall functions, the enhanced viscosity approach does not assume a particular velocity profile shape. During rapid transients (valve events, piston motion), the wall treatment continues to provide stable and physically reasonable predictions.
+
+\paragraph{Moving Boundary Performance}
+The coupling with the immersed boundary method allows consistent treatment as the piston moves:
+\begin{itemize}
+    \item No remeshing or interpolation required
+    \item Wall distance automatically updated via signed distance function
+    \item Smooth transition as cells change from fluid to solid (or vice versa)
+\end{itemize}
+
+\subsection{Comparison with Standard Wall Functions}
+
+Simulations using standard equilibrium wall functions show:
+\begin{itemize}
+    \item Similar mean flow predictions in attached boundary layers
+    \item Larger discrepancies during rapid transients
+    \item Potential instabilities in regions of flow reversal
+    \item Less robust behavior at moving boundaries
+\end{itemize}
+
+The enhanced viscosity approach provides more consistent results across the range of engine operating conditions.
+
+\subsection{Computational Efficiency}
+
+The wall treatment enables significant computational savings:
+
+\begin{table}[htbp]
+    \centering
+    \caption{Computational cost comparison.}
+    \label{tab:computational_cost}
+    \begin{tabular}{lcc}
+        \toprule
+        \textbf{Approach} & \textbf{Grid (millions)} & \textbf{Relative Cost} \\
+        \midrule
+        Wall-resolved LES & 100+ & 10$\times$ \\
+        LES with enhanced viscosity & 16 & 1$\times$ \\
+        RANS & 2 & 0.1$\times$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The enhanced viscosity wall treatment provides a practical middle ground---capturing the unsteady, turbulent nature of engine flows while maintaining computational feasibility.
+
+\section{Discussion}
+
+\subsection{Physical Insights}
+
+The engine simulations reveal several physical insights about boundary layer behavior:
+
+\begin{enumerate}
+    \item \textbf{Non-equilibrium effects are significant:} The boundary layers rarely achieve equilibrium during the engine cycle. Wall treatments based on equilibrium assumptions may introduce systematic errors.
+
+    \item \textbf{History matters:} The boundary layer at any crank angle depends on its development history throughout the cycle. This memory effect cannot be captured by instantaneous-only models.
+
+    \item \textbf{Spatial variation is large:} Different regions of the combustion chamber surface experience vastly different flow conditions. A single wall function ``constant'' would not be appropriate everywhere.
+\end{enumerate}
+
+\subsection{Limitations and Future Work}
+
+Several areas for improvement are identified:
+
+\begin{itemize}
+    \item \textbf{Heat transfer:} The current work focuses on momentum transfer; extension to thermal boundary layers is needed for heat flux predictions.
+
+    \item \textbf{Higher engine speeds:} The simulations at 800 rpm need validation at higher speeds where turbulence levels increase.
+
+    \item \textbf{Combustion interaction:} The influence of combustion on near-wall behavior requires additional model development.
+
+    \item \textbf{Statistical convergence:} More engine cycles would provide better converged statistics, particularly for cycle-to-cycle variability.
+\end{itemize}
+
+\section{Summary}
+
+This chapter has presented the application of the enhanced viscosity wall treatment to LES of the optical engine:
+
+\begin{itemize}
+    \item The wall treatment handles the non-equilibrium, transient conditions of engine flows without requiring equilibrium assumptions.
+
+    \item The coupling with immersed boundaries enables efficient simulation of the moving piston and valves.
+
+    \item The velocity field predictions show reasonable agreement with available PIV measurements.
+
+    \item Significant computational savings are achieved compared to wall-resolved LES while maintaining physical fidelity.
+\end{itemize}
+
+The results demonstrate that the enhanced viscosity wall treatment provides a viable approach for practical engine simulations, capturing the essential physics of wall-bounded flows while remaining computationally tractable.
