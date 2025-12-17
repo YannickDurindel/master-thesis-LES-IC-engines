@@ -173,14 +173,14 @@ def create_channel_flow_schematic():
     # Turbulent-like profile
     u = 1.5 * (1 - (np.abs(y)/wall_y)**0.15)
 
-    # Draw velocity profile
-    ax.plot(2 + u*1.5, y, color=COLORS['blue'], linewidth=3)
-    ax.fill_betweenx(y, 2, 2 + u*1.5, alpha=0.3, color=COLORS['blue'])
+    # Draw velocity profile (curve extends LEFT from baseline to show U(y) magnitude)
+    ax.plot(4 - u*1.5, y, color=COLORS['blue'], linewidth=3)
+    ax.fill_betweenx(y, 4, 4 - u*1.5, alpha=0.3, color=COLORS['blue'])
 
-    # Velocity arrows
+    # Velocity arrows (pointing LEFT to show velocity magnitude at each y)
     for yi in np.linspace(-1.5, 1.5, 7):
         ui = 1.5 * (1 - (np.abs(yi)/wall_y)**0.15)
-        ax.annotate('', xy=(2 + ui*1.5, yi), xytext=(2, yi),
+        ax.annotate('', xy=(4 - ui*1.5, yi), xytext=(4, yi),
                    arrowprops=dict(arrowstyle='->', color=COLORS['blue'], lw=1.5))
 
     # Flow direction arrow
@@ -209,7 +209,7 @@ def create_channel_flow_schematic():
     # Labels
     ax.text(2, wall_y + 0.5, 'Upper wall (no-slip)', fontsize=10, ha='left')
     ax.text(2, -wall_y - 0.5, 'Lower wall (no-slip)', fontsize=10, ha='left')
-    ax.text(3.5, 1.0, r'$U(y)$', fontsize=12, color=COLORS['blue'])
+    ax.text(2.8, 1.0, r'$U(y)$', fontsize=12, color=COLORS['blue'])
 
     # Coordinate system
     ax.annotate('', xy=(9, -1.5), xytext=(8.5, -1.5),
