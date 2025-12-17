@@ -83,7 +83,18 @@ The simulations follow a standard procedure:
 
 \section{DNS Results}
 
-The DNS results provide the reference against which the LES with wall treatment will be validated.
+The DNS results provide the reference against which the LES with wall treatment will be validated. A total of 501 instantaneous flow fields were collected after the flow reached statistical stationarity.
+
+\subsection{Instantaneous Flow Field}
+
+The instantaneous DNS velocity field reveals the turbulent structures present in the channel flow. Figure~\ref{fig:dns_instantaneous} shows a snapshot of the streamwise velocity, where the characteristic elongated streaky structures near the walls and larger-scale motions in the core region are visible.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/dns_instantaneous_velocity.png}
+    \caption{Instantaneous DNS velocity field at $Re_\tau = 395$. The turbulent structures show characteristic near-wall streaks and larger eddies in the channel core. The velocity ranges from zero at the walls (blue) to approximately 1.5 m/s in high-speed regions (red).}
+    \label{fig:dns_instantaneous}
+\end{figure}
 
 \subsection{Mean Velocity Profile}
 
@@ -91,8 +102,8 @@ The time-averaged and spatially-averaged mean velocity profile is shown in wall 
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.9\textwidth]{figures/velocity_comparison.png}
-    \caption{Mean velocity profile in wall units from DNS. The simulation recovers the expected law-of-the-wall behavior: linear profile $u^+ = y^+$ in the viscous sublayer, and logarithmic profile $u^+ = (1/\kappa)\ln(y^+) + B$ in the log layer with $\kappa = 0.41$ and $B = 5.2$.}
+    \includegraphics[width=0.9\textwidth]{figures/dns_averaged_velocity.png}
+    \caption{Time-averaged DNS velocity field (501 samples). The averaging eliminates turbulent fluctuations, revealing the smooth mean velocity distribution with zero velocity at the walls and maximum velocity at the channel center.}
     \label{fig:dns_velocity}
 \end{figure}
 
@@ -142,7 +153,14 @@ where the profile function $f(y^+)$ is designed to:
 
 \subsection{Mean Velocity Comparison}
 
-The mean velocity profiles from DNS and LES with the enhanced viscosity wall treatment are compared in Figure~\ref{fig:wall_units_comparison}.
+The mean velocity profiles from DNS and LES with the enhanced viscosity wall treatment ($C_m = 4.0$) are compared in Figure~\ref{fig:dns_les_contour}. The contour plots show the time-averaged velocity fields, demonstrating that the LES captures the overall flow structure despite the coarser grid.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/dns_les_contour_comparison.png}
+    \caption{Comparison of time-averaged velocity fields: DNS (top) and LES with enhanced viscosity $C_m = 4.0$ (bottom). The LES correctly reproduces the mean velocity distribution, with the characteristic boundary layer development from both walls. The enhanced viscosity creates slightly thicker near-wall regions in the LES, which compensates for the unresolved turbulent transport.}
+    \label{fig:dns_les_contour}
+\end{figure}
 
 The LES with enhanced viscosity achieves:
 \begin{itemize}
@@ -151,12 +169,14 @@ The LES with enhanced viscosity achieves:
     \item Significant computational savings compared to wall-resolved LES
 \end{itemize}
 
-\subsection{Velocity Profiles at Different Wall Distances}
+\subsection{Velocity Profiles in Physical and Wall Units}
+
+Figure~\ref{fig:wall_units_comparison} presents a detailed comparison of velocity profiles in both physical units and wall units.
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.9\textwidth]{figures/wall_units_averaged.png}
-    \caption{Comparison of velocity profiles showing DNS, LES with enhanced viscosity, and analytical law of the wall. The enhanced viscosity model successfully bridges the near-wall region on the coarse LES grid.}
+    \includegraphics[width=\textwidth]{figures/dns_les_velocity_profiles.png}
+    \caption{Velocity profile comparison between DNS and LES ($C_m = 4.0$). Left: Physical units showing the near-wall region to channel center. Right: Wall units ($u^+$ vs $y^+$) with the viscous sublayer law ($u^+ = y^+$) and logarithmic law shown for reference. The LES with enhanced viscosity provides excellent agreement with DNS throughout the boundary layer.}
     \label{fig:wall_units_comparison}
 \end{figure}
 
