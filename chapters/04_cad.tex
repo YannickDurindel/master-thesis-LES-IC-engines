@@ -46,6 +46,13 @@ The engine provides optical access through several transparent components:
 
 These optical access features impose constraints on the engine design---the quartz components have different thermal properties than metal, and the extended piston increases the effective crank-slider mechanism length. However, the geometric similarity to production engines is maintained as closely as possible.
 
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/engine_assembly.jpg}
+    \caption{CAD model of the optical engine assembly showing the cylinder, cylinder head with intake runners (blue) and exhaust runners (red), and valve stems. The color coding distinguishes the intake side (blue) from the exhaust side (red), a convention maintained throughout the simulations.}
+    \label{fig:engine_assembly}
+\end{figure}
+
 \section{CAD Model Development}
 
 \subsection{Approach}
@@ -99,6 +106,22 @@ The four-valve configuration includes:
     \item Valve lift profiles as a function of crank angle
     \item Valve seat geometry for accurate port-cylinder interface
 \end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/engine_head_valves.jpg}
+    \caption{Detail view of the cylinder head showing the valve seat geometry. The intake valve seats (blue rings) and exhaust valve seats (red rings) are critical regions where the flow accelerates through the narrow gap between valve and seat during opening and closing phases.}
+    \label{fig:engine_head_valves}
+\end{figure}
+
+The valve seat geometry is particularly important for accurate flow prediction. During the valve opening phase, the flow accelerates through the narrow annular gap between the valve head and the seat, creating a high-velocity jet that enters the combustion chamber. The shape and angle of this seat directly influence the tumble and swirl generation.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/intake_port.jpg}
+    \caption{Cross-sectional view of the intake port geometry showing the flow path from the intake runner to the combustion chamber. The port shape is designed to direct the incoming flow toward one side of the chamber to generate tumble motion.}
+    \label{fig:intake_port}
+\end{figure}
 
 \subsection{STL Export for Immersed Boundary Method}
 

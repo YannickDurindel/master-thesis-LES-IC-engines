@@ -109,8 +109,8 @@ The velocity profile can also be examined in physical units, which provides insi
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.9\textwidth]{figures/velocity_physical_comparison.png}
-    \caption{Mean velocity profile in physical units showing the boundary layer development from both walls. The profile is symmetric about the channel centerline, with the velocity reaching its maximum at the center.}
+    \includegraphics[width=0.9\textwidth]{figures/velocity_profile_comparison.png}
+    \caption{Mean velocity profile comparison between DNS (solid blue) and LES with enhanced viscosity (dashed red) in physical units. The LES closely follows the DNS profile, with excellent agreement from the wall to the channel center. The characteristic turbulent profile shape is well captured, with steep gradients near the wall transitioning to a flatter profile in the core region.}
     \label{fig:dns_velocity_physical}
 \end{figure}
 
@@ -121,7 +121,7 @@ The wall shear stress is a critical quantity for engine simulations, as it direc
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.9\textwidth]{figures/shear_stress_comparison.png}
-    \caption{Wall shear stress from DNS compared with LES predictions. The correct prediction of wall shear stress is essential for accurate heat transfer calculations in engine simulations.}
+    \caption{Shear stress profile comparison between DNS (solid blue) and LES with enhanced viscosity at $C_m = 4.0$ (dashed red). The LES correctly captures the high shear stress near the wall that decays toward the channel center. The enhanced viscosity approach provides accurate wall shear stress prediction, which is essential for heat transfer calculations in engine simulations.}
     \label{fig:shear_stress}
 \end{figure}
 
@@ -173,14 +173,45 @@ The results show that:
     \item The near-wall profile shape depends on the balance between grid resolution and enhanced viscosity magnitude
 \end{itemize}
 
-\subsection{Optimal Enhancement Factor}
+\subsection{Viscosity Coefficient Calibration}
 
-The enhancement factor $\alpha$ must be chosen to provide sufficient turbulent transport without over-diffusing the flow. Through systematic variation:
+The enhancement factor $C_m$ (also denoted $\alpha$ in the formulation) must be calibrated to provide accurate boundary layer behavior. A systematic study was performed testing three values: $C_m = 1.0$, $C_m = 2.0$, and $C_m = 4.0$.
+
+\subsubsection{Calibration Methodology}
+
+The calibration follows a hierarchical approach:
+\begin{enumerate}
+    \item Run DNS of channel flow to obtain reference data
+    \item Run LES with different $C_m$ values on the same geometry
+    \item Compare velocity profiles and wall shear stress against DNS
+    \item Select the value that best matches the near-wall behavior
+\end{enumerate}
+
+\subsubsection{Results of Coefficient Testing}
+
+The three coefficient values showed distinct behaviors:
+
 \begin{itemize}
-    \item Too small $\alpha$: Wall shear stress is under-predicted
-    \item Too large $\alpha$: The velocity profile is over-smoothed
-    \item Optimal range: $\alpha$ scales with the grid spacing in wall units
+    \item \textbf{$C_m = 1.0$:} Provides the best overall velocity profile match in the logarithmic and outer regions. However, the near-wall gradient is under-predicted, leading to lower wall shear stress than DNS.
+
+    \item \textbf{$C_m = 2.0$:} Intermediate behavior with improved near-wall gradients compared to $C_m = 1.0$, but still some deviation in the buffer layer.
+
+    \item \textbf{$C_m = 4.0$:} Best reproduction of the near-wall velocity gradient and wall shear stress. The steeper gradient near the wall correctly captures the momentum transport that would be provided by unresolved turbulent eddies.
 \end{itemize}
+
+\subsubsection{Selection of $C_m = 4.0$}
+
+The value $\mathbf{C_m = 4.0}$ was selected for the engine simulations based on the following reasoning:
+
+\begin{enumerate}
+    \item \textbf{Boundary layer accuracy:} For engine heat transfer predictions, the near-wall velocity gradient (which determines wall shear stress and heat flux) is more important than the exact profile shape in the outer region.
+
+    \item \textbf{Wall shear stress:} $C_m = 4.0$ provides the closest match to DNS wall shear stress values, which is critical for heat transfer calculations.
+
+    \item \textbf{Robustness:} Higher $C_m$ values provide more stable simulations on coarse grids, which is important for the complex engine geometry.
+\end{enumerate}
+
+While $C_m = 1.0$ gives better agreement in the bulk flow region, the priority for engine simulations is accurate prediction of wall heat transfer, which depends directly on the near-wall velocity gradient. This justifies the selection of $C_m = 4.0$.
 
 \section{Comparison with Standard Wall Functions}
 
@@ -246,6 +277,7 @@ This chapter has presented the validation of the enhanced viscosity wall treatme
 \begin{itemize}
     \item DNS results provide accurate reference data for the mean velocity profile and wall shear stress
     \item LES with enhanced viscosity successfully predicts the mean flow behavior on coarser grids
+    \item Systematic calibration of the enhancement factor led to selection of $C_m = 4.0$ for optimal boundary layer accuracy
     \item The method provides consistent treatment compatible with immersed boundaries
     \item Grid sensitivity studies confirm the robustness of the approach
 \end{itemize}
