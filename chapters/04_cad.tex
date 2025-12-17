@@ -4,7 +4,7 @@ This chapter presents the CAD model development for the optical engine used in t
 
 \subsection{Overview}
 
-The optical engine at the University of Duisburg-Essen is a single-cylinder research engine specifically designed for fundamental studies of in-cylinder flow and combustion processes. The transparent components allow researchers to apply advanced laser-based measurement techniques such as Particle Image Velocimetry (PIV) and Laser-Induced Fluorescence (LIF) to study the flow field and species distributions within the combustion chamber.
+The optical engine at the University of Duisburg-Essen is an AVL 5811 single-cylinder research engine specifically designed for fundamental studies of in-cylinder flow and combustion processes. The transparent components allow researchers to apply advanced laser-based measurement techniques such as Particle Image Velocimetry (PIV) and Laser-Induced Fluorescence (LIF) to study the flow field and species distributions within the combustion chamber.
 
 \subsection{Engine Specifications}
 
@@ -12,22 +12,21 @@ The key specifications of the optical engine are summarized in Table~\ref{tab:en
 
 \begin{table}[htbp]
     \centering
-    \caption{Specifications of the University of Duisburg-Essen optical engine.}
+    \caption{Specifications of the AVL 5811 optical engine.}
     \label{tab:engine_specs}
     \begin{tabular}{ll}
         \toprule
         \textbf{Parameter} & \textbf{Value} \\
         \midrule
         Engine type & Single-cylinder, four-stroke \\
-        Bore & 86 mm \\
-        Stroke & 86 mm \\
-        Connecting rod length & 148 mm \\
-        Compression ratio & Variable (8--12:1) \\
+        Bore & 84 mm \\
+        Stroke & 90 mm \\
+        Displacement & 499 cm$^3$ \\
+        Connecting rod length & 161 mm \\
+        Compression ratio & $\sim$10:1 \\
         Valve configuration & 4-valve pentroof \\
-        Intake valve diameter & 30 mm \\
-        Exhaust valve diameter & 26 mm \\
-        Maximum speed & 2000 rpm \\
-        Optical access & Piston crown, cylinder liner \\
+        Nominal speed & 3000 rpm \\
+        Optical access & Piston crown (sapphire), cylinder liner (quartz) \\
         \bottomrule
     \end{tabular}
 \end{table}
@@ -188,7 +187,7 @@ Mesh generation for the optical engine presents several challenges:
 
     \item \textbf{Varying clearances:} At top dead center (TDC), the clearance between piston and head can be less than 1 mm, requiring fine resolution.
 
-    \item \textbf{Scale range:} The bore (86 mm) and smallest features (valve gaps) differ by two orders of magnitude.
+    \item \textbf{Scale range:} The bore (84 mm) and smallest features (valve gaps) differ by two orders of magnitude.
 \end{enumerate}
 
 \subsection{Immersed Boundary Approach}
@@ -212,7 +211,7 @@ The immersed boundary method in PsiPhi addresses these challenges by using a fix
 For the engine simulations, the Cartesian grid resolution is chosen to balance computational cost with accuracy requirements:
 
 \begin{itemize}
-    \item \textbf{Base grid:} 256 cells across the bore diameter (cell size $\approx$ 0.34 mm)
+    \item \textbf{Base grid:} 256 cells across the bore diameter (cell size $\approx$ 0.33 mm)
     \item \textbf{Wall-normal resolution:} With the enhanced viscosity wall model, the first cell can be placed at $y^+ \approx 10$--30, relaxing the stringent requirements of wall-resolved LES
     \item \textbf{Total cell count:} Approximately 16 million cells for a full engine simulation
 \end{itemize}
@@ -224,7 +223,7 @@ These grid requirements are feasible with current high-performance computing res
 This chapter has presented the CAD model development for the optical engine simulation:
 
 \begin{itemize}
-    \item The University of Duisburg-Essen optical engine provides a well-characterized research platform with extensive experimental data for validation.
+    \item The AVL 5811 optical engine at University of Duisburg-Essen provides a well-characterized research platform with extensive experimental data for validation.
 
     \item The CAD model accurately represents the combustion chamber geometry and is exported in STL format for the immersed boundary method.
 
