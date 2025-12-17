@@ -168,10 +168,10 @@ def create_channel_flow_schematic():
     ax.fill_between([0, 10], [-wall_y, -wall_y], [-wall_y - 0.3, -wall_y - 0.3],
                    color='gray', alpha=0.8)
 
-    # Velocity profile (parabolic for laminar, log-like for turbulent)
+    # Velocity profile - parabolic shape (like x²)
     y = np.linspace(-wall_y, wall_y, 100)
-    # Turbulent-like profile - flatter in center, steep near walls
-    u = 1 - (np.abs(y)/wall_y)**0.2
+    # Parabolic profile: u = 1 - (y/delta)^2
+    u = 1 - (y/wall_y)**2
 
     # Draw velocity profile (curve extends RIGHT from baseline to show U(y) magnitude)
     ax.plot(2 + u*2.5, y, color=COLORS['blue'], linewidth=3)
@@ -179,7 +179,7 @@ def create_channel_flow_schematic():
 
     # Velocity arrows (pointing RIGHT to show velocity magnitude at each y)
     for yi in np.linspace(-1.5, 1.5, 7):
-        ui = 1 - (np.abs(yi)/wall_y)**0.2
+        ui = 1 - (yi/wall_y)**2
         ax.annotate('', xy=(2 + ui*2.5, yi), xytext=(2, yi),
                    arrowprops=dict(arrowstyle='->', color=COLORS['blue'], lw=1.5))
 
