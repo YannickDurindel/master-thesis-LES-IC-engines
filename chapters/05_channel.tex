@@ -127,12 +127,12 @@ The velocity profile can also be examined in physical units, which provides insi
 
 \subsection{Wall Shear Stress}
 
-The wall shear stress is a critical quantity for engine simulations, as it directly affects heat transfer predictions. The DNS provides accurate wall shear stress values that can be compared with LES predictions.
+The wall shear stress is a critical quantity for engine simulations. The DNS provides accurate wall shear stress values that can be compared with LES predictions.
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.9\textwidth]{figures/shear_stress_comparison.png}
-    \caption{Shear stress profile comparison between DNS (solid blue) and LES with enhanced viscosity at $C_m = 4.0$ (dashed red). The LES correctly captures the high shear stress near the wall that decays toward the channel center. The enhanced viscosity approach provides accurate wall shear stress prediction, which is essential for heat transfer calculations in engine simulations.}
+    \caption{Shear stress profile comparison between DNS (solid blue) and LES with enhanced viscosity at $C_m = 4.0$ (dashed red). The LES correctly captures the high shear stress near the wall that decays toward the channel center. The enhanced viscosity approach provides accurate wall shear stress prediction.}
     \label{fig:shear_stress}
 \end{figure}
 
@@ -241,7 +241,7 @@ Figure~\ref{fig:cm_wall_units} shows the same comparison in wall units ($u^+ = u
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{figures/cm_comparison_wall_units.pdf}
-    \caption{Velocity profiles in wall units comparing DNS with LES at $C_m = 1.0$ and $C_m = 4.0$. The viscous sublayer ($y^+ < 5$) and logarithmic layer ($y^+ > 30$) regions are indicated. Both LES cases follow the classical wall laws, with $C_m = 4.0$ showing better agreement in the buffer layer and viscous sublayer where accurate resolution is critical for heat transfer predictions.}
+    \caption{Velocity profiles in wall units comparing DNS with LES at $C_m = 1.0$ and $C_m = 4.0$. The viscous sublayer ($y^+ < 5$) and logarithmic layer ($y^+ > 30$) regions are indicated. Both LES cases follow the classical wall laws, with $C_m = 4.0$ showing better agreement in the buffer layer and viscous sublayer where accurate resolution is critical for wall shear stress predictions.}
     \label{fig:cm_wall_units}
 \end{figure}
 
@@ -259,14 +259,14 @@ Figure~\ref{fig:cm_error} quantifies the velocity prediction errors for both coe
 The value $\mathbf{C_m = 4.0}$ was selected for the engine simulations based on the following reasoning:
 
 \begin{enumerate}
-    \item \textbf{Boundary layer accuracy:} For engine heat transfer predictions, the near-wall velocity gradient (which determines wall shear stress and heat flux) is more important than the exact profile shape in the outer region.
+    \item \textbf{Boundary layer accuracy:} For engine simulations, the near-wall velocity gradient (which determines wall shear stress) is more important than the exact profile shape in the outer region.
 
-    \item \textbf{Wall shear stress:} $C_m = 4.0$ provides the closest match to DNS wall shear stress values, which is critical for heat transfer calculations.
+    \item \textbf{Wall shear stress:} $C_m = 4.0$ provides the closest match to DNS wall shear stress values.
 
     \item \textbf{Robustness:} Higher $C_m$ values provide more stable simulations on coarse grids, which is important for the complex engine geometry.
 \end{enumerate}
 
-While $C_m = 1.0$ gives better agreement in the bulk flow region, the priority for engine simulations is accurate prediction of wall heat transfer, which depends directly on the near-wall velocity gradient. This justifies the selection of $C_m = 4.0$.
+While $C_m = 1.0$ gives better agreement in the bulk flow region, the priority for engine simulations is accurate prediction of wall shear stress, which depends directly on the near-wall velocity gradient. This justifies the selection of $C_m = 4.0$.
 
 \subsubsection{Relevance to Engine Simulations}
 
@@ -277,12 +277,12 @@ An important consideration is whether the centerline velocity deviation observed
 
     \item \textbf{Flow structure differences:} Engine flows are dominated by large-scale tumble and swirl motions driven by the intake jet, not by pressure-gradient-driven parallel flow as in the channel. The organized in-cylinder motion is determined primarily by the intake port geometry and valve timing, not by the wall treatment in the channel calibration case.
 
-    \item \textbf{Boundary layer is the target:} The purpose of this study is specifically to improve near-wall predictions for heat transfer calculations. A small deviation in bulk velocity is an acceptable trade-off for significantly improved boundary layer accuracy.
+    \item \textbf{Boundary layer is the target:} The purpose of this study is specifically to improve near-wall predictions. A small deviation in bulk velocity is an acceptable trade-off for significantly improved boundary layer accuracy.
 
     \item \textbf{Non-equilibrium conditions:} In engines, boundary layers are subjected to rapid pressure changes, flow reversal, and impingement. The steady channel flow centerline velocity is not representative of the transient engine environment, but the near-wall physics captured by the wall treatment remains relevant.
 \end{enumerate}
 
-In summary, the selection of $C_m = 4.0$ prioritizes boundary layer accuracy over bulk flow matching, which is the appropriate choice for wall heat transfer studies in internal combustion engines.
+In summary, the selection of $C_m = 4.0$ prioritizes boundary layer accuracy over bulk flow matching, which is the appropriate choice for wall shear stress studies in internal combustion engines.
 
 \section{Comparison with Standard Wall Functions}
 
@@ -393,7 +393,7 @@ This chapter has presented the validation of the enhanced viscosity wall treatme
 
     \item Systematic comparison of $C_m = 1.0$ and $C_m = 4.0$ revealed a fundamental trade-off: lower values match bulk flow better, while higher values provide superior near-wall accuracy.
 
-    \item The selection of $C_m = 4.0$ prioritizes boundary layer accuracy, which is critical for engine heat transfer predictions. The resulting deviation in centerline velocity does not impact engine simulations due to geometric and flow structure differences.
+    \item The selection of $C_m = 4.0$ prioritizes boundary layer accuracy. The resulting deviation in centerline velocity does not impact engine simulations due to geometric and flow structure differences.
 
     \item The method provides consistent treatment compatible with immersed boundaries.
 

@@ -1,4 +1,4 @@
-Wall-bounded flows are inherently complex because they give rise to boundary layers. Near the wall, steep velocity and temperature gradients develop due to the no-slip condition and the difference between the wall temperature and the fluid temperature. In internal combustion engines, these layers form along multiple surfaces, with the piston being particularly significant due to its large area, continuous motion, and strong influence on overall heat transfer and large-scale flow structures such as the tumble vortex.
+Wall-bounded flows are inherently complex because they give rise to boundary layers. Near the wall, steep velocity gradients develop due to the no-slip condition. In internal combustion engines, these layers form along multiple surfaces, with the piston being particularly significant due to its large area, continuous motion, and strong influence on large-scale flow structures such as the tumble vortex.
 
 \section{Motivation}
 
@@ -6,19 +6,17 @@ Wall-bounded flows are inherently complex because they give rise to boundary lay
 
 Unlike steady external flows, engine flows are highly unsteady and dominated by pressure fluctuations and non-equilibrium effects. The in-cylinder flow undergoes rapid changes during the intake, compression, combustion, and exhaust strokes, creating a complex turbulent environment where classical boundary layer assumptions often fail.
 
-The piston surface plays a critical role in engine heat transfer and flow dynamics:
+The piston surface plays a critical role in engine flow dynamics:
 \begin{itemize}
     \item Large surface area exposed to combustion gases
     \item Continuous motion affecting the boundary layer development
     \item Strong influence on the tumble vortex and large-scale flow structures
-    \item Significant contribution to overall engine heat losses
 \end{itemize}
 
-Accurate prediction of wall shear stress and heat transfer at the piston surface is essential for:
+Accurate prediction of wall shear stress at the piston surface is essential for:
 \begin{itemize}
-    \item Estimating thermal efficiency and heat losses
-    \item Predicting component temperatures and thermal stresses
-    \item Understanding in-cylinder chemistry and emissions formation
+    \item Understanding in-cylinder mixing and flow patterns
+    \item Predicting boundary layer behavior during combustion
     \item Optimizing combustion chamber design
 \end{itemize}
 
@@ -31,11 +29,10 @@ However, the assumptions underlying these wall functions fail under the rapidly 
     \item Non-equilibrium effects due to rapid pressure changes
     \item Strong adverse pressure gradients during compression
     \item Flow reversal and boundary layer separation
-    \item Transient thermal boundary layers
     \item Complex geometry effects near valve seats and piston bowl
 \end{itemize}
 
-Inaccurate wall shear-stress estimation leads to errors in heat-transfer prediction, potentially underestimating thermal losses and misrepresenting engine efficiency and in-cylinder chemistry.
+Inaccurate wall shear-stress estimation leads to errors in predicting boundary layer behavior and in-cylinder flow dynamics.
 
 \section{Challenges in Engine Simulation}
 
@@ -47,7 +44,7 @@ Because of the high velocities and turbulence in engines, fully resolving all fl
 
 \subsection{Near-Wall Modeling Gap}
 
-A significant knowledge gap remains in developing \gls{sgs} models that can accurately capture boundary-layer formation near the piston and predict heat transfer during the engine cycle. The standard approaches either:
+A significant knowledge gap remains in developing \gls{sgs} models that can accurately capture boundary-layer formation near the piston during the engine cycle. The standard approaches either:
 \begin{itemize}
     \item Require extremely fine grids near walls (wall-resolved \gls{les}), making simulations prohibitively expensive
     \item Use wall functions that fail under engine-relevant conditions (wall-modeled \gls{les})
@@ -128,16 +125,6 @@ The wall shear stress distribution over the piston surface is analyzed throughou
     \item Spatial distribution across the piston crown
     \item Influence of the tumble vortex on local shear stress
     \item Comparison with standard wall function predictions
-\end{itemize}
-
-\subsection{Heat Transfer}
-
-Heat transfer through the piston wall is evaluated to assess:
-\begin{itemize}
-    \item Total heat flux during the engine cycle
-    \item Peak heat transfer rates during combustion
-    \item Spatial variations in heat transfer coefficient
-    \item Sensitivity to the wall treatment parameters
 \end{itemize}
 
 \subsection{Boundary Layer Behavior}

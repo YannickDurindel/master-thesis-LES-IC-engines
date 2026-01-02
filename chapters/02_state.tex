@@ -39,7 +39,7 @@ These conservation equations form the foundation of all fluid dynamics simulatio
 
 The momentum equation (Eq.~\ref{eq:momentum}) is essentially Newton's second law applied to a fluid. The left-hand side represents the rate of change of momentum, while the right-hand side accounts for all forces: pressure gradients that push fluid from high to low pressure regions, viscous stresses that resist deformation, and body forces like gravity. In engine flows, the pressure gradient term dominates during compression and expansion strokes, while viscous effects become critical near walls where the no-slip condition must be satisfied.
 
-The stress tensor (Eq.~\ref{eq:stress_tensor}) deserves special attention for wall-bounded flows. Near a solid surface, velocity gradients become large as the flow transitions from zero velocity at the wall to the bulk flow velocity. These gradients, when multiplied by viscosity, produce the wall shear stress that directly affects fuel-air mixing and heat transfer in engines. Understanding and accurately predicting this wall shear stress is central to the work presented in this thesis.
+The stress tensor (Eq.~\ref{eq:stress_tensor}) deserves special attention for wall-bounded flows. Near a solid surface, velocity gradients become large as the flow transitions from zero velocity at the wall to the bulk flow velocity. These gradients, when multiplied by viscosity, produce the wall shear stress that directly affects fuel-air mixing in engines. Understanding and accurately predicting this wall shear stress is central to the work presented in this thesis.
 
 \subsection{Conservation of Energy}
 
@@ -48,9 +48,7 @@ The first law of thermodynamics, applied to a fluid element, gives the energy eq
     \frac{\partial (\rho E)}{\partial t} + \nabla \cdot ((\rho E + p)\mathbf{u}) = \nabla \cdot (\kappa \nabla T) + \nabla \cdot (\boldsymbol{\tau} \cdot \mathbf{u}) + \rho \mathbf{g} \cdot \mathbf{u}
     \label{eq:energy}
 \end{equation}
-where $E$ is the total energy per unit mass, $\kappa$ is the thermal conductivity, and $T$ is the temperature.
-
-In engine simulations, the energy equation is crucial for predicting wall heat transfer. The thermal boundary layer---the thin region near the wall where temperature transitions from the hot combustion gases to the cooler wall---behaves similarly to the velocity boundary layer. During combustion, peak heat fluxes can reach 1~MW/m$^2$ at the piston surface, making accurate prediction of near-wall thermal transport essential for engine efficiency and durability analysis.
+where $E$ is the total energy per unit mass, $\kappa$ is the thermal conductivity, and $T$ is the temperature. While the energy equation is important for combustion simulations, this thesis focuses on the momentum equations and boundary layer dynamics.
 
 \begin{figure}[htbp]
     \centering
@@ -542,35 +540,11 @@ The rapid pressure changes during compression and expansion create strong favora
 
 \subsubsection{Unsteady Effects}
 
-The boundary layer does not have time to reach equilibrium between the different phases of the engine cycle. The wall shear stress and heat transfer lag behind the bulk flow changes.
+The boundary layer does not have time to reach equilibrium between the different phases of the engine cycle. The wall shear stress lags behind the bulk flow changes.
 
 \subsubsection{History Effects}
 
 The boundary layer at any instant depends on the flow history, not just the instantaneous conditions. This makes equilibrium-based wall functions unreliable.
-
-\subsection{Heat Transfer in Engines}
-
-Heat transfer in engines is characterized by:
-\begin{itemize}
-    \item High peak heat flux during combustion (order of \SI{1}{MW/m^2})
-    \item Strong spatial variation across combustion chamber surfaces
-    \item Cycle-to-cycle variations in heat flux
-    \item Transient thermal boundary layers
-\end{itemize}
-
-The wall heat flux is commonly expressed using Newton's law of cooling:
-\begin{equation}
-    q_w = h(T_g - T_w)
-    \label{eq:heat_flux}
-\end{equation}
-where $h$ is the heat transfer coefficient, $T_g$ is the gas temperature, and $T_w$ is the wall temperature.
-
-Empirical correlations such as the Woschni correlation are commonly used in engine simulation:
-\begin{equation}
-    h = C \cdot B^{-0.2} \cdot p^{0.8} \cdot T^{-0.55} \cdot w^{0.8}
-    \label{eq:woschni}
-\end{equation}
-where $B$ is the bore, $p$ is the pressure, $T$ is the temperature, and $w$ is a characteristic velocity combining piston speed and combustion effects.
 
 \section{Optical Engines}
 
@@ -583,7 +557,7 @@ Typical optical engine features include:
     \item Extended piston with quartz or sapphire window in the crown
     \item Transparent cylinder liner (quartz)
     \item Mirror below the piston for through-piston imaging
-    \item Skip-firing operation to manage thermal loads
+    \item Skip-firing operation to protect optical components
 \end{itemize}
 
 \subsection{Research Applications}
@@ -601,7 +575,6 @@ Optical engines enable:
 Optical engine measurements have limitations:
 \begin{itemize}
     \item Lower firing rates than production engines
-    \item Different thermal properties of transparent materials
     \item Optical access constraints limit geometry modifications
     \item Skip-firing affects cycle-to-cycle variations
 \end{itemize}
@@ -648,7 +621,6 @@ PsiPhi has been applied to various flow configurations:
     \item Premixed combustion
     \item Internal combustion engine simulations
     \item Fundamental turbulence studies
-    \item Heat transfer problems
 \end{itemize}
 
 The combination of structured grids, immersed boundaries, and established turbulence modeling makes PsiPhi well-suited for the engine boundary layer studies in this work.
